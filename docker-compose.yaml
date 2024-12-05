@@ -1,0 +1,35 @@
+x-logging: &logging
+  logging:
+    driver: "json-file"
+    options:
+      max-size: "100m"
+      max-file: "3"
+
+x-service-defaults: &service-defaults
+  <<: *logging
+  stop_grace_period: 1s
+  entrypoint:
+    - "/project/entrypoint.sh"
+
+services:
+  app:
+    build: ./app
+    volumes:
+      - "./app:/project"
+      # - "./shared:/libs/shared"
+    env_file:
+      - ${API_ENV_FILE}
+    # depends_on:
+    #   - db
+    ports:
+      - ${APP_PORT}:8000
+    <<: *service-defaults
+
+  # db:
+  #   image: postgres:16.4-bookworm
+  #   restart: always
+  #   env_file:
+  #     - ${DB_ENV_FILE}
+  #   volumes:
+  #     - .docker_volumes/postgres_data:/var/lib/postgresql/data
+  #   <<: *logging
