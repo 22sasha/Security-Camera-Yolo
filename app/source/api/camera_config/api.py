@@ -1,7 +1,7 @@
 from .api_settings import PREFIX, Paths
 from fastapi import APIRouter, Depends, status
-from services.ip_camera import IPCameraServiceInterface, get_ip_camera_service
-from shared.schemas.ip_camera import params, response, IPCamera
+from services.camera_config import CameraConfigServiceInterface, get_camera_config_service
+from shared.schemas.camera_config import params, response, CameraConfig
 
 
 router = APIRouter(prefix=PREFIX, tags=["IP Camera", ])
@@ -9,27 +9,27 @@ router = APIRouter(prefix=PREFIX, tags=["IP Camera", ])
 
 @router.put(
     path=Paths.Create,
-    name="Save IP for IP Camera",
+    name="Save Camera Config",
     responses={
         status.HTTP_201_CREATED: {"model": response.Create},
         status.HTTP_503_SERVICE_UNAVAILABLE: {},
     },
     status_code=status.HTTP_201_CREATED,
 )
-async def create_lot(params: params.Create, 
-                     service: IPCameraServiceInterface = Depends(get_ip_camera_service)) -> response.Create:
+async def create_camera_config(params: params.Create, 
+                     service: CameraConfigServiceInterface = Depends(get_camera_config_service)) -> response.Create:
     return await service.create(params)
 
 
 @router.get(
     path=Paths.Read,
-    name="Read Lot",
+    name="Read Camera Config",
     responses={
         status.HTTP_200_OK: {"model": response.Read},
         status.HTTP_404_NOT_FOUND: {},
     },
     status_code=status.HTTP_200_OK,
 )
-async def read_lot(params: params.Read = Depends(), 
-                   service: IPCameraServiceInterface = Depends(get_ip_camera_service)) -> response.Read:
+async def read_camera_config(params: params.Read = Depends(), 
+                   service: CameraConfigServiceInterface = Depends(get_camera_config_service)) -> response.Read:
     return await service.read(params)

@@ -1,8 +1,8 @@
-from shared.schemas.ip_camera import response, params, IPCamera
+from shared.schemas.camera_config import response, params, CameraConfig
 from abc import ABC, abstractmethod
 
 
-class IPCameraServiceInterface(ABC):
+class CameraConfigServiceInterface(ABC):
     @abstractmethod
     async def create(self, params: params.Create) -> response.Create:
         ...

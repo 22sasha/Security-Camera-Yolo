@@ -1,2 +1,2 @@
 from .base import BaseRepository
-from .ip_camera import IPCameraRepository
+from .camera_config import CameraConfigRepository

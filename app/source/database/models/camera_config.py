@@ -3,7 +3,7 @@ from sqlalchemy.orm import mapped_column, Mapped
 from .base import Base
 
 
-class IPCamera(Base): 
-    __tablename__ = 'ip_camera' 
+class CameraConfig(Base): 
+    __tablename__ = 'camera_configs' 
 
     ip: Mapped[str] = mapped_column(String)

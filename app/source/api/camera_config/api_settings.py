@@ -1,4 +1,4 @@
-PREFIX = "/ip_camera"
+PREFIX = "/camera_config"
 
 
 class Paths:

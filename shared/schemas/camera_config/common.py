@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
 
-class IPCamera(BaseModel):
+class CameraConfig(BaseModel):
     id: int
     ip: str

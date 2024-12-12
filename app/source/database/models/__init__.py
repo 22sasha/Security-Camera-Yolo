@@ -1,2 +1,2 @@
 from .base import Base
-from .ip import IPCamera
+from .camera_config import CameraConfig
