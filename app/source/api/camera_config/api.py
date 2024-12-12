@@ -33,3 +33,31 @@ async def create_camera_config(params: params.Create,
 async def read_camera_config(params: params.Read = Depends(), 
                    service: CameraConfigServiceInterface = Depends(get_camera_config_service)) -> response.Read:
     return await service.read(params)
+
+
+@router.delete(
+    path=Paths.Delete,
+    name="Delete Camera Config",
+    responses={
+        status.HTTP_200_OK: {},
+        status.HTTP_404_NOT_FOUND: {},
+    },
+    status_code=status.HTTP_200_OK,
+)
+async def delete_camera_config(params: params.Delete = Depends(), 
+                   service: CameraConfigServiceInterface = Depends(get_camera_config_service)):
+    return await service.delete(params)
+
+
+@router.get(
+    path=Paths.List,
+    name="List Camera Config",
+    responses={
+        status.HTTP_200_OK: {"model": response.List},
+        status.HTTP_404_NOT_FOUND: {},
+    },
+    status_code=status.HTTP_200_OK,
+)
+async def read_camera_config(params: params.List = Depends(), 
+                   service: CameraConfigServiceInterface = Depends(get_camera_config_service)) -> response.List:
+    return await service.list(params)

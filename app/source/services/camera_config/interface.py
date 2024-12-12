@@ -10,3 +10,15 @@ class CameraConfigServiceInterface(ABC):
     @abstractmethod
     async def read(self, params: params.Read) -> response.Read:
         ...
+
+    # @abstractmethod
+    # async def update(self, params: params.Update) -> response.Update:
+    #     ...
+
+    @abstractmethod
+    async def delete(self, params: params.Delete):
+        ...
+
+    @abstractmethod
+    async def list(self, query: params.List) -> response.List:
+        ...

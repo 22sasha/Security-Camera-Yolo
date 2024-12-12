@@ -8,3 +8,8 @@ class Create(BaseModel):
 
 class Read(BaseModel):
     camera_config: CameraConfig
+
+
+class List(BaseModel):
+    items: list[CameraConfig]
+    total: int

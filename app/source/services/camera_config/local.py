@@ -20,6 +20,15 @@ class LocalCameraConfigService(CameraConfigServiceInterface):
         obj = await self.__get(id=params.id)
         return response.Read(camera_config=CameraConfig.model_validate(obj, from_attributes=True))
 
+    async def delete(self, params: params.Delete):
+        obj = await self.__get(id=params.id)
+        await self.repo.delete(obj)
+
+    async def list(self, params: params.List) -> response.List:
+        items, total = await self.repo.list(params=params)
+        return response.List(items=[CameraConfig.model_validate(item, from_attributes=True) for item in items],
+                             total=total)
+
     async def __get(self, id: int) -> CameraConfig:
         obj = await self.repo.get(id=id)
         if obj is None:
