@@ -8,7 +8,7 @@ from sqlalchemy.orm import make_transient
 from fastapi import Depends
 from typing import Iterable, Any, AsyncGenerator
 from database.database import get_session
-from database.models.base import Base
+from database.models import Base
 
 
 ModelT = TypeVar("ModelT", bound=Base)

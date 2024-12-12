@@ -5,9 +5,12 @@ from fastapi.responses import HTMLResponse
 from starlette.requests import Request
 import os
 
+from .ip_camera import router as ip_camera_router
 
-app = FastAPI()
 
+app = FastAPI(title="Security Camera API")
+
+app.include_router(ip_camera_router)
 
 
 
