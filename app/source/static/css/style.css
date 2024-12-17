@@ -9,7 +9,7 @@ body {
 
 header {
     background-color: #333;
-    padding: 1%;
+    padding: 5px;
 }
 
 h1.header-logo {
@@ -90,9 +90,12 @@ h1.header-logo {
     position: absolute;
 }
 .detect { 
-    border: 2px solid black; 
-    width: 20px; 
-    height: 20px;
+    width: 40px; 
+    height: 40px;
+}
+.detect img { 
+    width: 40px; 
+    height: 40px;
 }
 .add_block_button { 
     margin-bottom: 1%;  

@@ -13,8 +13,12 @@
         <img id="camera-stream-camera-1" src="" alt="Camera Stream">
       </div>
       <div class="detect-container">
-        <div class="detect detect0-camera-1" style="background-color: gray;"></div>
-        <div class="detect detect1-camera-1" style="background-color: gray;"></div>
+        <div class="detect detect0-camera-1">
+          <img src="/static/images/empty.png" alt="fire">
+        </div>
+        <div class="detect detect1-camera-1">
+          <img src="/static/images/empty.png" alt="smoke">
+        </div>
       </div>
       
     </div>
@@ -41,8 +45,12 @@
         </div>
 
         <div class="detect-container">
-            <div class="detect detect0-${cameraBlockId}" style="background-color: gray;"></div>
-            <div class="detect detect1-${cameraBlockId}" style="background-color: gray;"></div>
+            <div class="detect detect0-${cameraBlockId}">
+              <img src="/static/images/empty.png" alt="fire">
+            </div>
+            <div class="detect detect1-${cameraBlockId}">
+              <img src="/static/images/empty.png" alt="smoke">
+            </div>
         </div>
       </div>
       </div>
@@ -94,8 +102,12 @@
         if (detection.class_id === 1) smokeFound = 1;
       });
 
-      document.querySelector(`.detect0-${cameraBlockId}`).style.backgroundColor = fireFound ? 'red' : 'gray';
-      document.querySelector(`.detect1-${cameraBlockId}`).style.backgroundColor = smokeFound ? 'red' : 'gray';
+      const fireImage = document.querySelector(`.detect0-${cameraBlockId} img`)
+      
+      fireImage.src = fireFound ? "static/images/fire.png" : "static/images/empty.png";
+      const smokeImage = document.querySelector(`.detect1-${cameraBlockId} img`)
+      
+      smokeImage.src = smokeFound ? "static/images/smoke.png" : "static/images/empty.png";
     } catch (error) {
       console.error('Error fetching detections:', error);
       handleConnectionError(cameraBlockId);
@@ -107,11 +119,11 @@
     videoElement.src = ''; // Очистить видео
     clearInterval(detectionInterval); // Остановить обновление детекций
 
-    const fireBlock = document.querySelector(`.detect0-${cameraBlockId}`);
-    const smokeBlock = document.querySelector(`.detect1-${cameraBlockId}`);
+    const fireBlock = document.querySelector(`.detect0-${cameraBlockId} img`);
+    const smokeBlock = document.querySelector(`.detect1-${cameraBlockId} img`);
 
-    fireBlock.style.backgroundColor = 'gray';
-    smokeBlock.style.backgroundColor = 'gray';
+    fireBlock.src = "static/images/empty.png";
+    smokeBlock.scr = "static/images/empty.png";
   }
 </script>
 {% endblock %}
