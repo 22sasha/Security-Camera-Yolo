@@ -1,6 +1,117 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Welcome to Page 2!</h1>
-<p>This is the content of page 2.</p>
+<div class="camera-blocks" id="camera-blocks">
+  <div class="camera-block" id="camera-1">
+    <div class="url-block url-block-1">
+      <input type="text" id="camera-url-camera-1" placeholder="Enter camera URL" size="20">
+      <button onclick="connectCamera('camera-1')">Connect</button>
+    </div>
+
+    <div class="video-and-detection">
+      <div class="video-container" style="width: {{ width }}px; height: {{ height }}px;">
+        <img id="camera-stream-camera-1" src="" alt="Camera Stream">
+      </div>
+      <div class="detect-container">
+        <div class="detect detect0-camera-1" style="background-color: gray;"></div>
+        <div class="detect detect1-camera-1" style="background-color: gray;"></div>
+      </div>
+      
+    </div>
+  </div>
+</div>
+<br>
+<button onclick="addCameraBlock()" class="add_block_button">Add Camera Block</button>
+
+<script>
+  let cameraCount = 2;
+
+  function addCameraBlock() {
+    const cameraBlockId = `camera-${cameraCount}`;
+    const cameraBlock = document.createElement('div');
+    cameraBlock.classList.add('camera-block');
+    cameraBlock.innerHTML = `
+      <div class="url-block url-block-${cameraCount}">
+        <input type="text" id="camera-url-${cameraBlockId}" placeholder="Enter camera URL" size="20">
+        <button onclick="connectCamera('${cameraBlockId}')">Connect</button>
+      </div>
+      <div class="video-and-detection">
+        <div class="video-container" style="width: {{ width }}px; height: {{ height }}px;">
+          <img id="camera-stream-${cameraBlockId}" src="" alt="Camera Stream">
+        </div>
+
+        <div class="detect-container">
+            <div class="detect detect0-${cameraBlockId}" style="background-color: gray;"></div>
+            <div class="detect detect1-${cameraBlockId}" style="background-color: gray;"></div>
+        </div>
+      </div>
+      </div>
+    `;
+    document.getElementById('camera-blocks').appendChild(cameraBlock);
+    cameraCount++;
+  }
+
+  function connectCamera(cameraBlockId) {
+    const urlField = document.getElementById(`camera-url-${cameraBlockId}`);
+    const cameraUrl = urlField.value;
+
+    if (!cameraUrl) {
+      alert('Please enter a camera URL');
+      return;
+    }
+
+    const videoElement = document.getElementById(`camera-stream-${cameraBlockId}`);
+    let detectionInterval;
+
+    fetch(`/add_camera?url=${encodeURIComponent(cameraUrl)}`, {
+      method: 'POST',
+    })
+    .then(response => response.json())
+    .then(data => {
+      const cameraId = data.camera_id;
+      videoElement.src = `/video_feed?camera_id=${cameraId}`;
+
+      detectionInterval = setInterval(() => updateDetections(cameraId, cameraBlockId), 300);
+    })
+    .catch(error => handleConnectionError(cameraBlockId, detectionInterval));
+
+    videoElement.onerror = function () {
+      handleConnectionError(cameraBlockId, detectionInterval);
+    };
+  }
+
+  async function updateDetections(cameraId, cameraBlockId) {
+    try {
+      const response = await fetch(`/detections?camera_id=${cameraId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch detections');
+      }
+      const detections = await response.json();
+      let fireFound = 0, smokeFound = 0;
+
+      detections.forEach(detection => {
+        if (detection.class_id === 0) fireFound = 1;
+        if (detection.class_id === 1) smokeFound = 1;
+      });
+
+      document.querySelector(`.detect0-${cameraBlockId}`).style.backgroundColor = fireFound ? 'red' : 'gray';
+      document.querySelector(`.detect1-${cameraBlockId}`).style.backgroundColor = smokeFound ? 'red' : 'gray';
+    } catch (error) {
+      console.error('Error fetching detections:', error);
+      handleConnectionError(cameraBlockId);
+    }
+  }
+
+  function handleConnectionError(cameraBlockId, detectionInterval = null) {
+    const videoElement = document.getElementById(`camera-stream-${cameraBlockId}`);
+    videoElement.src = ''; // Очистить видео
+    clearInterval(detectionInterval); // Остановить обновление детекций
+
+    const fireBlock = document.querySelector(`.detect0-${cameraBlockId}`);
+    const smokeBlock = document.querySelector(`.detect1-${cameraBlockId}`);
+
+    fireBlock.style.backgroundColor = 'gray';
+    smokeBlock.style.backgroundColor = 'gray';
+  }
+</script>
 {% endblock %}

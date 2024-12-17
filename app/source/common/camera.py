@@ -4,6 +4,7 @@ from ultralytics import YOLO
 import torch
 
 
+# TODO threading camera
 class Camera():
     def __init__(self, url):
         self.model = YOLO("models/fire_smoke.pt")
@@ -12,10 +13,7 @@ class Camera():
 
         self.width = int(os.getenv("CAMERA_WIDTH", 640))
         self.height = int(os.getenv("CAMERA_HEIGHT", 480))
-        self.queue_size = int(os.getenv("CAMERA_QUEUE_SIZE", 30))
-        self.timeout = float(os.getenv("CAMERA_TIMEOUT", 10))
         self.confidence = float(os.getenv("MODEL_CONFIDENCE", 0.2))
-
         self.url = url
         self.cap = self.__capture_video(url)
 
@@ -54,6 +52,8 @@ class Camera():
         success, image = self.cap.read()
         if not success:
             return
+        
+        image = cv2.resize(image, (self.width, self.height))
         results = self.model.track(source=image, conf=self.confidence, verbose=False)
         detections = self.__process_prediction(results)
 
