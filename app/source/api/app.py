@@ -19,13 +19,13 @@ templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/", response_class=HTMLResponse)
-async def read_page1(request: Request):
-    return templates.TemplateResponse("page1.html", {"request": request})
+async def read_home(request: Request):
+    return templates.TemplateResponse("home.html", {"request": request})
 
-@app.get("/page2", response_class=HTMLResponse)
-async def read_page2(request: Request):
-    return templates.TemplateResponse("page2.html", {"request": request})
+@app.get("/dashboard", response_class=HTMLResponse)
+async def read_dashboard(request: Request):
+    return templates.TemplateResponse("dashboard.html", {"request": request})
 
-@app.get("/page3", response_class=HTMLResponse)
-async def read_page3(request: Request):
-    return templates.TemplateResponse("page3.html", {"request": request})
+@app.get("/configuration", response_class=HTMLResponse)
+async def read_configuration(request: Request):
+    return templates.TemplateResponse("configuration.html", {"request": request})
