@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+<h1>Dashboard</h1>
 <div class="camera-blocks" id="camera-blocks">
   <div class="camera-block" id="camera-1">
     <div class="url-block url-block-1">
@@ -63,11 +64,6 @@
     const urlField = document.getElementById(`camera-url-${cameraBlockId}`);
     const cameraUrl = urlField.value;
 
-    if (!cameraUrl) {
-      alert('Please enter a camera URL');
-      return;
-    }
-
     const videoElement = document.getElementById(`camera-stream-${cameraBlockId}`);
     let detectionInterval;
 
@@ -79,7 +75,7 @@
       const cameraId = data.camera_id;
       videoElement.src = `/video_feed?camera_id=${cameraId}`;
 
-      detectionInterval = setInterval(() => updateDetections(cameraId, cameraBlockId), 300);
+      detectionInterval = setInterval(() => updateDetections(cameraId, cameraBlockId), 1000);
     })
     .catch(error => handleConnectionError(cameraBlockId, detectionInterval));
 
@@ -124,6 +120,11 @@
 
     fireBlock.src = "static/images/empty.png";
     smokeBlock.scr = "static/images/empty.png";
+
+    const response = fetch(`/delete?camera_id=${cameraId}`, {
+      method: 'DELETE',
+    });
+
   }
 </script>
 {% endblock %}

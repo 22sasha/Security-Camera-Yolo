@@ -5,6 +5,7 @@ from common.camera import Camera
 from typing import Dict
 from uuid import uuid4
 import os
+import asyncio
 
 
 router = APIRouter(
@@ -25,8 +26,10 @@ async def add_camera(url: str):
     if not camera.cap.isOpened():
         raise HTTPException(status_code=400, detail="Camera could not be opened")
     
+    await asyncio.sleep(5)
     camera_cache[camera_id] = camera
     detections_cache[camera_id] = []
+    print("camera cache", camera_cache)
     return {"camera_id": camera_id}
 
 
@@ -39,7 +42,7 @@ def get_camera(camera_id: str) -> Camera:
 def gen_video(camera: Camera, camera_id: str):
     try:
         while True:
-            frame, detections = camera.get_frame() # type: ignore
+            frame, detections = camera.get_frame()
             detections_cache[camera_id] = detections
             yield (b'--frame\r\n'
                 b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
@@ -49,6 +52,7 @@ def gen_video(camera: Camera, camera_id: str):
 
 
 def clean_camera_cache(camera_id: str):
+    print("clean_camera_cache...")
     if camera_id in camera_cache:
         del camera_cache[camera_id]
     if camera_id in detections_cache:
@@ -61,7 +65,7 @@ async def video_feed(camera_id: str):
         camera = get_camera(camera_id)
         return StreamingResponse(gen_video(camera, camera_id),
                                 media_type='multipart/x-mixed-replace; boundary=frame')
-    except HTTPException as E:
+    except Exception as E:
         clean_camera_cache(camera_id)
         raise E
 
@@ -74,9 +78,14 @@ async def detections(camera_id: str):
             return detection
         else:
             raise HTTPException(400, "Camera URL not working")
-    except HTTPException as E:
+    except Exception as E:
         clean_camera_cache(camera_id)
         raise E
+
+
+@router.delete("/detele")
+async def delete(camera_id: str):
+    clean_camera_cache(camera_id)
 
 
 @router.get("/dashboard", response_class=HTMLResponse)
