@@ -1,6 +1,67 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Welcome to Page 2!</h1>
-<p>This is the content of page 2.</p>
+<h1>Dashboard</h1>
+<div class="camera-blocks" id="camera-blocks">
+  <div class="camera-block" id="camera-1">
+    <div class="url-block url-block-1">
+      <input type="text" id="camera-url-camera-1" placeholder="Enter camera URL" size="20">
+      <button onclick="connectCamera('camera-1')">Connect</button>
+    </div>
+
+    <div class="video-and-detection">
+      <div class="video-container" style="width: {{ width }}px; height: {{ height }}px;">
+        <img id="camera-stream-camera-1" src="" alt="Camera Stream">
+      </div>
+      <div class="detect-container">
+        <div class="detect detect0-camera-1">
+          <img src="/static/images/empty.png" alt="fire">
+        </div>
+        <div class="detect detect1-camera-1">
+          <img src="/static/images/empty.png" alt="smoke">
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</div>
+<br>
+<button onclick="addCameraBlock()" class="add_block_button">Add Camera Block</button>
+
+
+<script>
+let cameraCount = 2;
+
+function addCameraBlock() {
+  const cameraBlockId = `camera-${cameraCount}`;
+  const cameraBlock = document.createElement('div');
+  cameraBlock.classList.add('camera-block');
+  cameraBlock.innerHTML = `
+    <div class="url-block url-block-${cameraCount}">
+      <input type="text" id="camera-url-${cameraBlockId}" placeholder="Enter camera URL" size="20">
+      <button onclick="connectCamera('${cameraBlockId}')">Connect</button>
+    </div>
+    <div class="video-and-detection">
+      <div class="video-container" style="width: {{ width }}px; height: {{ height }}px;">
+        <img id="camera-stream-${cameraBlockId}" src="" alt="Camera Stream">
+      </div>
+
+      <div class="detect-container">
+          <div class="detect detect0-${cameraBlockId}">
+            <img src="/static/images/empty.png" alt="fire">
+          </div>
+          <div class="detect detect1-${cameraBlockId}">
+            <img src="/static/images/empty.png" alt="smoke">
+          </div>
+      </div>
+    </div>
+    </div>
+  `;
+  document.getElementById('camera-blocks').appendChild(cameraBlock);
+  cameraCount++;
+}
+
+
+
+</script>
 {% endblock %}
