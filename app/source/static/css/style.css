@@ -1,3 +1,5 @@
+/* Base */
+
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -7,7 +9,7 @@ body {
 
 header {
     background-color: #333;
-    padding: 1%;
+    padding: 5px;
 }
 
 h1.header-logo {
@@ -51,4 +53,50 @@ h1.header-logo {
     border-radius: 8px;
     padding: 1%;
     margin-right: 10px;
+}
+
+/* Dashboard */
+
+.url-block { 
+    margin-bottom: 1px;
+}
+.camera-blocks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: flex-start;
+}
+.camera-block { 
+    display: flex; 
+    flex-direction: column; 
+    align-items: flex-start; 
+}
+.video-and-detection { 
+    display: flex; 
+    align-items: flex-start; 
+    gap: 20px; 
+}
+.video-container { 
+    border: 2px solid black; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    width: auto; 
+    height: auto; 
+}
+.detect-container { 
+    display: flex; 
+    gap: 2px;
+    position: absolute;
+}
+.detect { 
+    width: 40px; 
+    height: 40px;
+}
+.detect img { 
+    width: 40px; 
+    height: 40px;
+}
+.add_block_button { 
+    margin-bottom: 1%;  
 }
