@@ -62,6 +62,59 @@ function addCameraBlock() {
 }
 
 
+async function connectCamera(cameraBlockId) {
+  const cameraId = await connectToCamera(cameraBlockId);
+  if (cameraId) {
+    handleWebSocket(cameraBlockId, cameraId);
+  }
+}
+
+async function connectToCamera(cameraBlockId) {
+  const url = document.getElementById(`camera-url-${cameraBlockId}`).value;
+  const response = await fetch('/connect_camera', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ url: url })
+  });
+  if (!response.ok) {
+    const errorData = await response.json();
+    console.error('Error connecting camera:', errorData);
+    return null;
+  }
+  const data = await response.json();
+  return data.camera_id;
+}
+
+function handleWebSocket(cameraBlockId, cameraId) {
+  const ws = new WebSocket(`ws://${window.location.host}/ws/camera/${cameraId}`);
+
+  ws.onopen = function(event) {
+    console.log(`WebSocket connection opened. Camera id: ${cameraId}`);
+  }
+
+  ws.onmessage = function(event) {
+    const data = JSON.parse(event.data);
+    const frame = data.frame;
+    const detections = data.detections;
+
+    const imgElement = document.getElementById(`camera-stream-${cameraBlockId}`);
+    imgElement.src = `data:image/jpeg;base64,${frame}`;
+
+    document.querySelector(`.detect0-${cameraBlockId} img`).src = "/static/images/empty.png";
+    document.querySelector(`.detect1-${cameraBlockId} img`).src = "/static/images/empty.png";
+
+    detections.forEach((detection) => {
+      if (detection.class_id === 0) {
+        document.querySelector(`.detect0-${cameraBlockId} img`).src = "/static/images/fire.png";
+      } else if (detection.class_id === 1) {
+        document.querySelector(`.detect1-${cameraBlockId} img`).src = "/static/images/smoke.png";
+      }
+    });
+  };
+}
+
 
 </script>
 {% endblock %}

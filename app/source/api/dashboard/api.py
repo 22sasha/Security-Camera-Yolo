@@ -6,6 +6,9 @@ from typing import Dict
 from uuid import uuid4
 import os
 import asyncio
+from fastapi import WebSocket, WebSocketDisconnect, Body
+from pydantic import BaseModel
+import base64
 
 
 router = APIRouter(
@@ -13,6 +16,38 @@ router = APIRouter(
     tags=["Dashboard"]
 )
 templates = Jinja2Templates(directory="templates")
+
+camera_cache: Dict[str, Camera] = {}
+
+
+class CameraConnectionRequest(BaseModel):
+    url: str
+
+
+@router.post("/connect_camera")
+async def connect_camera(request: CameraConnectionRequest):
+    camera_id = str(uuid4())
+    camera = Camera(request.url)
+    if not camera.cap.isOpened():
+        raise HTTPException(status_code=400, detail="Camera could not be opened")
+    
+    await asyncio.sleep(5)
+    camera_cache[camera_id] = camera
+    print(camera_cache)
+    return {"camera_id": camera_id}
+
+
+@router.websocket("/ws/camera/{camera_id}")
+async def websocket_endpoint(websocket: WebSocket, camera_id: str):
+    await websocket.accept()
+    try:
+        while True:
+            frame, detections = camera_cache[camera_id].get_frame()
+            frame_base64 = base64.b64encode(frame).decode('utf-8')
+            await websocket.send_json({"frame": frame_base64, "detections": detections})
+            await asyncio.sleep(0.1)
+    except WebSocketDisconnect:
+        print(f"Client {camera_id} disconnected")
 
 
 @router.get("/dashboard", response_class=HTMLResponse)
