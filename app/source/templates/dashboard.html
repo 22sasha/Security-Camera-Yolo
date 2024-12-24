@@ -11,7 +11,7 @@
 
     <div class="video-and-detection">
       <div class="video-container" style="width: {{ width }}px; height: {{ height }}px;">
-        <img id="camera-stream-camera-1" src="" alt="Camera Stream">
+        <img id="camera-stream-camera-1" src="/static/images/empty.png" alt="Camera Stream" style="width: {{ width }}px; height: {{ height }}px;">
       </div>
       <div class="detect-container">
         <div class="detect detect0-camera-1">
@@ -32,6 +32,7 @@
 <script>
 let cameraCount = 2;
 
+
 function addCameraBlock() {
   const cameraBlockId = `camera-${cameraCount}`;
   const cameraBlock = document.createElement('div');
@@ -43,7 +44,7 @@ function addCameraBlock() {
     </div>
     <div class="video-and-detection">
       <div class="video-container" style="width: {{ width }}px; height: {{ height }}px;">
-        <img id="camera-stream-${cameraBlockId}" src="" alt="Camera Stream">
+        <img id="camera-stream-${cameraBlockId}" src="/static/images/empty.png" alt="Camera Stream" style="width: {{ width }}px; height: {{ height }}px;">
       </div>
 
       <div class="detect-container">
@@ -69,6 +70,7 @@ async function connectCamera(cameraBlockId) {
   }
 }
 
+
 async function connectToCamera(cameraBlockId) {
   const url = document.getElementById(`camera-url-${cameraBlockId}`).value;
   const response = await fetch('/connect_camera', {
@@ -87,11 +89,12 @@ async function connectToCamera(cameraBlockId) {
   return data.camera_id;
 }
 
+
 function handleWebSocket(cameraBlockId, cameraId) {
   const ws = new WebSocket(`ws://${window.location.host}/ws/camera/${cameraId}`);
 
   ws.onopen = function(event) {
-    console.log(`WebSocket connection opened. Camera id: ${cameraId}`);
+    console.log(`WebSocket connection opened for camera id: ${cameraId}`);
   }
 
   ws.onmessage = function(event) {
@@ -113,8 +116,38 @@ function handleWebSocket(cameraBlockId, cameraId) {
       }
     });
   };
+
+  ws.onclose = function(event) {
+    console.log(`WebSocket connection closed for camera id: ${cameraId}`);
+  };
+
 }
 
 
+async function disconnectCamera(cameraBlockId, cameraId, ws) {
+  if (ws) {
+    ws.close();
+  }
+
+  const imgElement = document.getElementById(`camera-stream-${cameraBlockId}`);
+  imgElement.src = "";
+
+  document.querySelector(`.detect0-${cameraBlockId} img`).src = "/static/images/empty.png";
+  document.querySelector(`.detect1-${cameraBlockId} img`).src = "/static/images/empty.png";
+
+  const response = await fetch('/disconnect_camera', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ camera_id: cameraId })
+  });
+
+  if (!response.ok) {
+    console.error('Error disconnecting camera:', await response.json());
+  } else {
+    console.log(`Camera ${cameraId} disconnected and removed`);
+  }
+}
 </script>
 {% endblock %}

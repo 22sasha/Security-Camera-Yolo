@@ -31,7 +31,7 @@ class Camera:
     def __del__(self):
         self.cap.release()
         cv2.destroyAllWindows()
-        self.thread.join(5)
+        self.thread.join(5)  # TODO RuntimeError: cannot join current thread
 
     def __capture_video(self, url):
         cap = cv2.VideoCapture(url)

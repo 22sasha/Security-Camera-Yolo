@@ -51,6 +51,14 @@ async def websocket_endpoint(websocket: WebSocket, camera_id: str):
         print(f"Client {camera_id} disconnected")
 
 
+@router.post("/disconnect_camera")
+async def disconnect_camera(camera_id: str):
+    if camera_id in camera_cache:
+        del camera_cache[camera_id]
+        return {"message": "Camera disconnected and removed from cache"}
+    raise HTTPException(status_code=404, detail="Camera not found")
+
+
 @router.get("/dashboard", response_class=HTMLResponse)
 async def index(request: Request):
     width = int(os.getenv("CAMERA_WIDTH", 640))
