@@ -47,6 +47,7 @@ async def websocket_endpoint(websocket: WebSocket, camera_id: str):
             await websocket.send_json({"frame": frame_base64, "detections": detections})
             await asyncio.sleep(0.1)
     except WebSocketDisconnect:
+        # del camera_cache[camera_id]
         print(f"Client {camera_id} disconnected")
 
 
