@@ -29,7 +29,7 @@ async def connect_camera(request: CameraConnectionRequest):
     camera_id = str(uuid4())
     camera = Camera(request.url)
     if not camera.cap.isOpened():
-        raise HTTPException(status_code=400, detail="Camera could not be opened")
+        raise HTTPException(status_code=503, detail="Camera could not be opened")
     
     await asyncio.sleep(5)
     camera_cache[camera_id] = camera
