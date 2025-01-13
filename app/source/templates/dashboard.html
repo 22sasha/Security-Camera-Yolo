@@ -141,7 +141,10 @@ async function disconnectWebsocket(cameraBlockId) {
 async function disconnectCamera(cameraBlockId) {
   if (cameraWebSockets[cameraBlockId] && cameraIDs[cameraBlockId]) {
     let camera_id = cameraIDs[cameraBlockId];
-
+    
+    if (cameraWebSockets[cameraBlockId].readyState === WebSocket.OPEN) {
+      cameraWebSockets[cameraBlockId].close();
+    }
     delete cameraWebSockets[cameraBlockId];
     delete cameraIDs[cameraBlockId];
 
@@ -149,7 +152,7 @@ async function disconnectCamera(cameraBlockId) {
     document.querySelector(`.detect0-${cameraBlockId} img`).src = "/static/images/empty.png";
     document.querySelector(`.detect1-${cameraBlockId} img`).src = "/static/images/empty.png";
 
-    await sleep(2000);
+    // await sleep(500);
 
     const response = await fetch('/disconnect_camera', {
       method: 'POST',
