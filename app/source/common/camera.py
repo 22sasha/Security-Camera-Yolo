@@ -7,7 +7,12 @@ from fastapi import HTTPException
 
 
 class Camera:
-    def __init__(self, url):
+    def __init__(self, url, camera_id):
+        self.frame = None
+        self.image = None
+        self.detections = []
+        self.is_active = True
+
         self.model = YOLO("models/fire_smoke.pt")
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.model.to(self.device)
@@ -18,20 +23,23 @@ class Camera:
         self.confidence = float(os.getenv("MODEL_CONFIDENCE", 0.2))
 
         self.url = url
+        self.camera_id = camera_id
         self.cap = self.__capture_video(url)
-
-        self.frame = None
-        self.detections = []
-        self.image = None
 
         self.thread = threading.Thread(target=self.__update_frame)
         self.thread.daemon = True
         self.thread.start()
 
     def __del__(self):
-        self.cap.release()
+        self.cleanup()
+
+    def cleanup(self):
+        self.is_active = False
+        if self.cap.isOpened():
+            self.cap.release()
         cv2.destroyAllWindows()
-        self.thread.join(5)  # TODO RuntimeError: cannot join current thread
+        if self.thread.is_alive():
+            self.thread.join(5)
 
     def __capture_video(self, url):
         cap = cv2.VideoCapture(url)
@@ -51,9 +59,10 @@ class Camera:
         return detections
 
     def __update_frame(self):
-        while True:
+        while self.is_active:
             success, image = self.cap.read()
             if not success:
+                self.cleanup()
                 raise HTTPException(503, "Camera connection Error")
             self.image = image
 
@@ -64,7 +73,12 @@ class Camera:
         annotated_image = cv2.resize(annotated_image, (self.width, self.height))
 
         ret, jpeg = cv2.imencode('.jpg', annotated_image)
-        
+
         self.frame = jpeg.tobytes()
         self.detections = detections
         return self.frame, self.detections
+
+    # def stop(self):
+    #     self.is_active = False
+    #     self.cap.release()
+    #     cv2.destroyAllWindows()

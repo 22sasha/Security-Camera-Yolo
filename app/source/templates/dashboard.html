@@ -7,6 +7,7 @@
     <div class="url-block url-block-1">
       <input type="text" id="camera-url-camera-1" placeholder="Enter camera URL" size="20">
       <button onclick="connectCamera('camera-1')">Connect</button>
+      <button onclick="disconnectWebsocket('camera-1')">Disconnect</button>
     </div>
 
     <div class="video-and-detection">
@@ -31,7 +32,8 @@
 
 <script>
 let cameraCount = 2;
-
+const cameraWebSockets = {};
+const cameraIDs = {};
 
 function addCameraBlock() {
   const cameraBlockId = `camera-${cameraCount}`;
@@ -41,6 +43,7 @@ function addCameraBlock() {
     <div class="url-block url-block-${cameraCount}">
       <input type="text" id="camera-url-${cameraBlockId}" placeholder="Enter camera URL" size="20">
       <button onclick="connectCamera('${cameraBlockId}')">Connect</button>
+      <button onclick="disconnectWebsocket('${cameraBlockId}')">Disconnect</button>
     </div>
     <div class="video-and-detection">
       <div class="video-container" style="width: {{ width }}px; height: {{ height }}px;">
@@ -92,6 +95,8 @@ async function connectToCamera(cameraBlockId) {
 
 function handleWebSocket(cameraBlockId, cameraId) {
   const ws = new WebSocket(`ws://${window.location.host}/ws/camera/${cameraId}`);
+  cameraWebSockets[cameraBlockId] = ws;
+  cameraIDs[cameraBlockId] = cameraId;
 
   ws.onopen = function(event) {
     console.log(`WebSocket connection opened for camera id: ${cameraId}`);
@@ -102,9 +107,7 @@ function handleWebSocket(cameraBlockId, cameraId) {
     const frame = data.frame;
     const detections = data.detections;
 
-    const imgElement = document.getElementById(`camera-stream-${cameraBlockId}`);
-    imgElement.src = `data:image/jpeg;base64,${frame}`;
-
+    document.getElementById(`camera-stream-${cameraBlockId}`).src = `data:image/jpeg;base64,${frame}`;
     document.querySelector(`.detect0-${cameraBlockId} img`).src = "/static/images/empty.png";
     document.querySelector(`.detect1-${cameraBlockId} img`).src = "/static/images/empty.png";
 
@@ -117,37 +120,53 @@ function handleWebSocket(cameraBlockId, cameraId) {
     });
   };
 
+  ws.onerror = function(event) {
+    disconnectWebsocket(cameraBlockId);
+    console.error(`WebSocket error for camera id: ${cameraId}`, event);
+  };
+
   ws.onclose = function(event) {
+    disconnectCamera(cameraBlockId);
     console.log(`WebSocket connection closed for camera id: ${cameraId}`);
   };
 
 }
 
-
-async function disconnectCamera(cameraBlockId, cameraId, ws) {
-  if (ws) {
-    ws.close();
+async function disconnectWebsocket(cameraBlockId) {
+  if (cameraWebSockets[cameraBlockId] && cameraIDs[cameraBlockId]) {
+    cameraWebSockets[cameraBlockId].close();
   }
+}
 
-  const imgElement = document.getElementById(`camera-stream-${cameraBlockId}`);
-  imgElement.src = "";
+async function disconnectCamera(cameraBlockId) {
+  if (cameraWebSockets[cameraBlockId] && cameraIDs[cameraBlockId]) {
+    let camera_id = cameraIDs[cameraBlockId];
 
-  document.querySelector(`.detect0-${cameraBlockId} img`).src = "/static/images/empty.png";
-  document.querySelector(`.detect1-${cameraBlockId} img`).src = "/static/images/empty.png";
+    delete cameraWebSockets[cameraBlockId];
+    delete cameraIDs[cameraBlockId];
 
-  const response = await fetch('/disconnect_camera', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ camera_id: cameraId })
-  });
+    document.getElementById(`camera-stream-${cameraBlockId}`).src = "/static/images/empty.png";
+    document.querySelector(`.detect0-${cameraBlockId} img`).src = "/static/images/empty.png";
+    document.querySelector(`.detect1-${cameraBlockId} img`).src = "/static/images/empty.png";
 
-  if (!response.ok) {
-    console.error('Error disconnecting camera:', await response.json());
-  } else {
-    console.log(`Camera ${cameraId} disconnected and removed`);
+    await sleep(2000);
+
+    const response = await fetch('/disconnect_camera', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ camera_id: camera_id  })
+    });
+
+    if (!response.ok) {
+      console.error('Error disconnecting camera:', await response.json());
+    }
   }
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 </script>
 {% endblock %}

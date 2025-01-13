@@ -24,10 +24,13 @@ class CameraConnectionRequest(BaseModel):
     url: str
 
 
+class CameraDisconnectionRequest(BaseModel):
+    camera_id: str
+
 @router.post("/connect_camera")
 async def connect_camera(request: CameraConnectionRequest):
     camera_id = str(uuid4())
-    camera = Camera(request.url)
+    camera = Camera(request.url, camera_id)
     if not camera.cap.isOpened():
         raise HTTPException(status_code=503, detail="Camera could not be opened")
     
@@ -41,21 +44,21 @@ async def connect_camera(request: CameraConnectionRequest):
 async def websocket_endpoint(websocket: WebSocket, camera_id: str):
     await websocket.accept()
     try:
-        while True:
+        while camera_id in camera_cache and camera_cache[camera_id].is_active:
             frame, detections = camera_cache[camera_id].get_frame()
             frame_base64 = base64.b64encode(frame).decode('utf-8')
             await websocket.send_json({"frame": frame_base64, "detections": detections})
             await asyncio.sleep(0.1)
-    except WebSocketDisconnect:
-        # del camera_cache[camera_id]
+        await websocket.close()
+    except WebSocketDisconnect as Error:
         print(f"Client {camera_id} disconnected")
 
 
 @router.post("/disconnect_camera")
-async def disconnect_camera(camera_id: str):
-    if camera_id in camera_cache:
-        del camera_cache[camera_id]
-        return {"message": "Camera disconnected and removed from cache"}
+async def disconnect_camera(request: CameraDisconnectionRequest):
+    if request.camera_id in camera_cache:
+        del camera_cache[request.camera_id]
+        return {"message": f"Camera {request.camera_id} disconnected and removed from cache"}
     raise HTTPException(status_code=404, detail="Camera not found")
 
 
