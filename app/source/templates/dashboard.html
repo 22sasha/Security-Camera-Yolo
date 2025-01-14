@@ -5,7 +5,7 @@
 <div class="camera-blocks" id="camera-blocks">
   <div class="camera-block" id="camera-1">
     <div class="url-block url-block-1">
-      <input type="text" id="camera-url-camera-1" placeholder="Enter camera URL" size="30">
+      <input type="text" id="camera-url-camera-1" placeholder="Enter camera ip address" size="30">
       <button class="camera-connect-button" id="connect-button-camera-1" onclick="connectCamera('camera-1')">Connect</button>
       <button class="camera-disconnect-button" id="disconnect-button-camera-1" style="display: none;" onclick="disconnectWebsocket('camera-1')">Disconnect</button>
     </div>
@@ -41,7 +41,7 @@ function addCameraBlock() {
   cameraBlock.classList.add('camera-block');
   cameraBlock.innerHTML = `
     <div class="url-block url-block-${cameraCount}">
-      <input type="text" id="camera-url-${cameraBlockId}" placeholder="Enter camera URL" size="30">
+      <input type="text" id="camera-url-${cameraBlockId}" placeholder="Enter camera ip address" size="30">
       <button class="camera-connect-button" id="connect-button-${cameraBlockId}" onclick="connectCamera('${cameraBlockId}')">Connect</button>
       <button class="camera-disconnect-button" id="disconnect-button-${cameraBlockId}" style="display: none;" onclick="disconnectWebsocket('${cameraBlockId}')">Disconnect</button>
     </div>
