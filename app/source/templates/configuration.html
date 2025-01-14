@@ -1,6 +1,45 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Welcome to Page 3!</h1>
-<p>This is the content of page 3.</p>
+<h1>Configuration</h1>
+
+<div id="ip-connection-form">
+    <input type="text" id="newTextField" placeholder="Введите текст">
+    <button onclick="addTextField()">Add</button>
+</div>
+
+
+<div id="text-fields-container">
+    
+</div>
+
+
+<script>
+    function addTextField() {
+        const input = document.getElementById('newTextField');
+        const text = input.value;
+        if (text) {
+            const container = document.getElementById('ip-connection-form');
+            const newDiv = document.createElement('div');
+            
+            const newInput = document.createElement('input');
+            newInput.type = 'text';
+            newInput.value = text;
+            newInput.disabled = true;
+            
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Delete';
+            deleteButton.onclick = function() {
+                container.removeChild(newDiv);
+            };
+            
+            newDiv.appendChild(newInput);
+            newDiv.appendChild(deleteButton);
+            container.appendChild(newDiv);
+            
+            input.value = '';
+        }
+    }
+</script>
+
 {% endblock %}
