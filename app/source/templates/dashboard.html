@@ -5,9 +5,9 @@
 <div class="camera-blocks" id="camera-blocks">
   <div class="camera-block" id="camera-1">
     <div class="url-block url-block-1">
-      <input type="text" id="camera-url-camera-1" placeholder="Enter camera URL" size="20">
-      <button onclick="connectCamera('camera-1')">Connect</button>
-      <button onclick="disconnectWebsocket('camera-1')">Disconnect</button>
+      <input type="text" id="camera-url-camera-1" placeholder="Enter camera URL" size="30">
+      <button class="camera-connect-button" id="connect-button-camera-1" onclick="connectCamera('camera-1')">Connect</button>
+      <button class="camera-disconnect-button" id="disconnect-button-camera-1" style="display: none;" onclick="disconnectWebsocket('camera-1')">Disconnect</button>
     </div>
 
     <div class="video-and-detection">
@@ -41,9 +41,9 @@ function addCameraBlock() {
   cameraBlock.classList.add('camera-block');
   cameraBlock.innerHTML = `
     <div class="url-block url-block-${cameraCount}">
-      <input type="text" id="camera-url-${cameraBlockId}" placeholder="Enter camera URL" size="20">
-      <button onclick="connectCamera('${cameraBlockId}')">Connect</button>
-      <button onclick="disconnectWebsocket('${cameraBlockId}')">Disconnect</button>
+      <input type="text" id="camera-url-${cameraBlockId}" placeholder="Enter camera URL" size="30">
+      <button class="camera-connect-button" id="connect-button-${cameraBlockId}" onclick="connectCamera('${cameraBlockId}')">Connect</button>
+      <button class="camera-disconnect-button" id="disconnect-button-${cameraBlockId}" style="display: none;" onclick="disconnectWebsocket('${cameraBlockId}')">Disconnect</button>
     </div>
     <div class="video-and-detection">
       <div class="video-container" style="width: {{ width }}px; height: {{ height }}px;">
@@ -65,6 +65,18 @@ function addCameraBlock() {
   cameraCount++;
 }
 
+function toggleButtons(cameraBlockId, isConnected) {
+  const connectButton = document.getElementById(`connect-button-${cameraBlockId}`);
+  const disconnectButton = document.getElementById(`disconnect-button-${cameraBlockId}`);
+
+  if (isConnected) {
+    connectButton.style.display = 'none';
+    disconnectButton.style.display = 'inline-block';
+  } else {
+    connectButton.style.display = 'inline-block';
+    disconnectButton.style.display = 'none';
+  }
+}
 
 async function connectCamera(cameraBlockId) {
   const cameraId = await connectToCamera(cameraBlockId);
@@ -86,6 +98,7 @@ async function connectToCamera(cameraBlockId) {
   if (!response.ok) {
     const errorData = await response.json();
     console.error('Error connecting camera:', errorData);
+    toggleButtons(cameraBlockId, false);
     return null;
   }
   const data = await response.json();
@@ -100,6 +113,7 @@ function handleWebSocket(cameraBlockId, cameraId) {
 
   ws.onopen = function(event) {
     console.log(`WebSocket connection opened for camera id: ${cameraId}`);
+    toggleButtons(cameraBlockId, true);
   }
 
   ws.onmessage = function(event) {
@@ -165,6 +179,7 @@ async function disconnectCamera(cameraBlockId) {
     if (!response.ok) {
       console.error('Error disconnecting camera:', await response.json());
     }
+    toggleButtons(cameraBlockId, false);
   }
 }
 
