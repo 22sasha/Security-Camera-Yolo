@@ -76,7 +76,10 @@ h1.header-logo {
 }
 .url-block input {
     padding: 5px 5px;
+    border: 1px solid #ccc;
+    background-color: #fff;
 }
+
 .camera-connect-button {
     background-color: #007bff;
     color: white;
@@ -122,6 +125,7 @@ h1.header-logo {
     align-items: center; 
     justify-content: center; 
     width: auto; 
+    /* width: calc(33.333% - 20px); */
     height: auto; 
 }
 .detect-container { 
@@ -149,7 +153,7 @@ h1.header-logo {
 }
 
 .add_block_button:hover {
-    background-color: #2d9044;
+    background-color: #2d8341;
 }
 
 
