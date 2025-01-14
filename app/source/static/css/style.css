@@ -26,7 +26,8 @@ h1.header-logo {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-top: 10px;
+    padding-top: 20px;
+    box-shadow: 2px 0 6px rgba(0, 0, 0, 0.1);
 }
 
 .side-panel .button-container {
@@ -49,16 +50,32 @@ h1.header-logo {
 .main-content {
     margin-left: 70px;
     margin-top: 10px;
-    background-color: white;
-    border-radius: 8px;
-    padding: 1%;
     margin-right: 10px;
+    background-color: white;
+    border-radius: 12px;
+    padding: 1%;
+    padding-left: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 /* Dashboard */
 
 .url-block { 
     margin-bottom: 1px;
+}
+.url-block input {
+    padding: 5px 5px;
+}
+.url-block button {
+    background-color: #007bff;
+    color: white;
+    padding: 6px 6px;
+    border: none;
+    border-radius: 4px;
+
+}
+.url-block button:hover {
+    background-color: #0056b3;
 }
 .camera-blocks {
     display: flex;
@@ -77,7 +94,8 @@ h1.header-logo {
     gap: 20px; 
 }
 .video-container { 
-    border: 2px solid black; 
+    border: 2px solid #bfbebe;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     display: flex; 
     align-items: center; 
     justify-content: center; 
@@ -97,6 +115,99 @@ h1.header-logo {
     width: 40px; 
     height: 40px;
 }
-.add_block_button { 
-    margin-bottom: 1%;  
+.add_block_button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    background-color: #28a745;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.add_block_button:hover {
+    background-color: #2d9044;
+}
+
+
+/* Camera Config */
+
+#ip-connection-forms {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+}
+
+#add-connection-form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+#add-connection-form input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+#add-connection-form button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+#add-connection-form button:hover {
+    background-color: #0056b3;
+}
+
+#list-connection-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.connection-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.connection-item span {
+    font-weight: bold;
+    color: #555;
+}
+
+.connection-item input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    background-color: #fff;
+}
+
+.connection-item button {
+    padding: 8px 16px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.connection-item button:hover {
+    background-color: #c82333;
 }

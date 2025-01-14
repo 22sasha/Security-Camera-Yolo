@@ -3,41 +3,76 @@
 {% block content %}
 <h1>Configuration</h1>
 
-<div id="ip-connection-form">
-    <input type="text" id="newTextField" placeholder="Введите текст">
-    <button onclick="addTextField()">Add</button>
-</div>
 
+<div id="ip-connecion-forms">
+    <div id="add-connection-form">
+        <input type="text" id="newTextField" placeholder="Введите текст">
+        <button onclick="addTextField()">Add</button>
+    </div>
 
-<div id="text-fields-container">
+    <div id="list-connection-form">
     
+    </div>
 </div>
 
 
 <script>
-    function addTextField() {
+    async function loadTextFields(newConfig) {
+        const container = document.getElementById("list-connection-form");
+
+        const newDiv = document.createElement('div');
+        newDiv.className = 'connection-item';
+        newDiv.id = `field-${newConfig.id}`;
+
+        const idSpan = document.createElement('span');
+        idSpan.textContent = `ID: ${newConfig.id}`;
+
+        const newInput = document.createElement('input');
+        newInput.type = 'text';
+        newInput.value = newConfig.ip;
+        newInput.disabled = true;
+
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.onclick = async function() {
+            await deleteTextField(newConfig.id);
+            newDiv.remove();
+        };
+
+        newDiv.appendChild(idSpan);
+        newDiv.appendChild(newInput);
+        newDiv.appendChild(deleteButton);
+        container.appendChild(newDiv);
+    }
+
+
+
+    async function addTextField() {
         const input = document.getElementById('newTextField');
-        const text = input.value;
-        if (text) {
-            const container = document.getElementById('ip-connection-form');
-            const newDiv = document.createElement('div');
-            
-            const newInput = document.createElement('input');
-            newInput.type = 'text';
-            newInput.value = text;
-            newInput.disabled = true;
-            
-            const deleteButton = document.createElement('button');
-            deleteButton.textContent = 'Delete';
-            deleteButton.onclick = function() {
-                container.removeChild(newDiv);
-            };
-            
-            newDiv.appendChild(newInput);
-            newDiv.appendChild(deleteButton);
-            container.appendChild(newDiv);
-            
+        const ip = input.value;
+        if (ip) {
+            const response = await fetch(`camera_config`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ ip: ip }),
+            });
+            if (!response.ok) {
+                console.error('Error adding ip connection form:', await response.json());
+            }
+            const newConfig = await response.json();
+            loadTextFields(newConfig.camera_config);
             input.value = '';
+        }
+    }
+
+    async function deleteTextField(id) {
+        const response = await fetch(`camera_config/${id}`, {
+            method: "DELETE",
+        });
+        if (!response.ok) {
+            console.error('Error deleting ip connection form:', await response.json());
         }
     }
 </script>
