@@ -15,7 +15,6 @@ templates = Jinja2Templates(directory="templates")
 async def read_configuration(request: Request,
                              service: CameraConfigServiceInterface = Depends(get_camera_config_service)):
     pagination_params = PaginationParams(page=1, perPage=20)
-    print(pagination_params)
     sort_params = SortParams(sortBy="id", sortOrder=SortOrder.Desc)
     params = CameraConfigParams.List(pagination=pagination_params, sort=sort_params)
     configs = await service.list(params=params)

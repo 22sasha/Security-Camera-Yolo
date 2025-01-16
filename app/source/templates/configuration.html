@@ -48,7 +48,7 @@
         newDiv.appendChild(idSpan);
         newDiv.appendChild(newInput);
         newDiv.appendChild(deleteButton);
-        container.appendChild(newDiv);
+        container.insertBefore(newDiv, container.firstChild);
     }
 
 
@@ -79,6 +79,12 @@
         });
         if (!response.ok) {
             console.error('Error deleting ip connection form:', await response.json());
+        }
+        else {
+            const divToRemove = document.getElementById(`field-${id}`);
+            if (divToRemove) {
+                divToRemove.remove();
+            }
         }
     }
 </script>
