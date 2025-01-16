@@ -20,5 +20,5 @@ class CameraConfigServiceInterface(ABC):
         ...
 
     @abstractmethod
-    async def list(self, query: params.List) -> response.List:
+    async def list(self, params: params.List) -> response.List:
         ...

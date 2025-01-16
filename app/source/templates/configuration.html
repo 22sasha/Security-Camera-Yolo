@@ -11,7 +11,13 @@
     </div>
 
     <div id="list-connection-form">
-    
+        {% for config in configs %}
+        <div class="connection-item" id="field-{{ config.id }}">
+            <span>ID: {{ config.id }}</span>
+            <input type="text" value="{{ config.ip }}" disabled>
+            <button onclick="deleteTextField({{ config.id }})">Delete</button>
+        </div>
+        {% endfor %}
     </div>
 </div>
 

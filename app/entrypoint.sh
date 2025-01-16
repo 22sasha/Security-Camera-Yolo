@@ -5,6 +5,7 @@ sleep 3
 
 alembic upgrade head
 
+# sleep infinity
 # python3 utils/check.py
 python3 main.py
 
