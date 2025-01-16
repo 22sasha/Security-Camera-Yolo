@@ -2,8 +2,6 @@
 
 {% block content %}
 <h1>Configuration</h1>
-
-
 <div id="ip-connecion-forms">
     <div id="add-connection-form">
         <input type="text" id="newTextField" placeholder="Enter camera ip address">
@@ -21,6 +19,11 @@
     </div>
 </div>
 
+<div id="pagination">
+    <button id="prev-page" onclick="changePage({{ current_page - 1 }})" {% if current_page == 1 %}disabled{% endif %}>Предыдущая</button>
+    <span id="current-page">{{ current_page }}</span> / <span id="total-pages">{{ total_pages }}</span>
+    <button id="next-page" onclick="changePage({{ current_page + 1 }})" {% if current_page == total_pages %}disabled{% endif %}>Следующая</button>
+</div>
 
 <script>
     async function loadTextFields(newConfig) {
@@ -85,6 +88,18 @@
             if (divToRemove) {
                 divToRemove.remove();
             }
+        }
+    }
+
+    async function changePage(page) {
+        const response = await fetch(`/configuration?page=${page}`, {
+            method: "GET",
+        });
+        if (response.ok) {
+            const html = await response.text();
+            document.body.innerHTML = html;
+        } else {
+            console.error('Error changing page:', await response.json());
         }
     }
 </script>
