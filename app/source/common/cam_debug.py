@@ -4,6 +4,7 @@ from ultralytics import YOLO
 import torch
 import threading
 from fastapi import HTTPException
+import time
 
 
 class Camera:
@@ -21,7 +22,7 @@ class Camera:
         self.height = int(os.getenv("CAMERA_HEIGHT", 480))
         self.queue_size = int(os.getenv("CAMERA_QUEUE_SIZE", 30))
         self.confidence = float(os.getenv("MODEL_CONFIDENCE", 0.2))
-
+        self.frame_delay = float(os.getenv("FRAME_DELAY", 0.1))
         self.url = url
         self.camera_id = camera_id
         self.cap = self.__capture_video(url)
@@ -29,6 +30,12 @@ class Camera:
         self.thread = threading.Thread(target=self.__update_frame)
         self.thread.daemon = True
         self.thread.start()
+        
+        self.thread2 = threading.Thread(target=self.__health_check)
+        self.thread2.daemon = True
+        self.thread2.start()
+
+        self.count2 = 0
 
     def __del__(self):
         self.cleanup()
@@ -39,6 +46,8 @@ class Camera:
             self.cap.release()
         cv2.destroyAllWindows()
         if self.thread.is_alive():
+            self.thread.join(5)
+        if self.thread2.is_alive():
             self.thread.join(5)
 
     def __capture_video(self, url):
@@ -59,15 +68,25 @@ class Camera:
         return detections
 
     def __update_frame(self):
+        count = 0
         while self.is_active:
+            count += 1
+            if count == 20:
+                print(f"__update_frame: {self.camera_id}")    
+                count = 0
             success, image = self.cap.read()
             if not success:
                 self.stop()
                 raise HTTPException(503, "Camera connection Error")
             self.image = image
+            # time.sleep(self.frame_delay * 0.5)
         self.stop()
 
     def get_frame(self):
+        self.count2 += 1
+        if self.count2 < 15:
+            print(f"get_frame: {self.camera_id}")
+            self.count2 = 0
         results = self.model.track(source=self.image, conf=self.confidence, verbose=False)
         detections = self.__process_prediction(results)
         annotated_image = results[0].plot()
@@ -81,3 +100,8 @@ class Camera:
 
     def stop(self):
         self.is_active = False
+
+    def __health_check(self):
+        while self.is_active:
+            print(f"Camera {self.camera_id} is alive")
+            time.sleep(4)

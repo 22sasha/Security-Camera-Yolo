@@ -1,7 +1,8 @@
 from fastapi.responses import HTMLResponse
 from fastapi import APIRouter, Request, HTTPException, Depends
 from fastapi.templating import Jinja2Templates
-from common.camera import Camera
+# from common.camera import Camera
+from common.cam_debug import Camera
 from typing import Dict
 from uuid import uuid4
 import os
@@ -16,7 +17,7 @@ router = APIRouter(
     tags=["Dashboard"]
 )
 templates = Jinja2Templates(directory="templates")
-
+FRAME_DELAY = float(os.getenv("FRAME_DELAY", 0.1))
 camera_cache: Dict[str, Camera] = {}
 
 
@@ -48,7 +49,7 @@ async def websocket_endpoint(websocket: WebSocket, camera_id: str):
             frame, detections = camera_cache[camera_id].get_frame()
             frame_base64 = base64.b64encode(frame).decode('utf-8')
             await websocket.send_json({"frame": frame_base64, "detections": detections})
-            await asyncio.sleep(0.1)
+            await asyncio.sleep(FRAME_DELAY)
         await websocket.close()
     except WebSocketDisconnect as Error:
         print(f"Client {camera_id} disconnected")
@@ -57,6 +58,7 @@ async def websocket_endpoint(websocket: WebSocket, camera_id: str):
 @router.post("/disconnect_camera")
 async def disconnect_camera(request: CameraDisconnectionRequest):
     if request.camera_id in camera_cache:
+        camera_cache[request.camera_id].stop()
         del camera_cache[request.camera_id]
         return {"message": f"Camera {request.camera_id} disconnected and removed from cache"}
     raise HTTPException(status_code=404, detail="Camera not found")
