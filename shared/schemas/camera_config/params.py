@@ -4,7 +4,7 @@ from fastapi import Depends
 
 
 class Create(BaseModel):
-    ip: str
+    url: str
 
 
 class Read(BaseModel):

@@ -5,7 +5,7 @@
 <div class="camera-blocks" id="camera-blocks">
   <div class="camera-block" id="camera-1">
     <div class="url-block url-block-1">
-      <input type="text" id="camera-url-camera-1" placeholder="Enter camera ip address" size="30">
+      <input type="text" id="camera-url-camera-1" placeholder="Enter camera url address" size="30">
       <button class="camera-connect-button" id="connect-button-camera-1" onclick="connectCamera('camera-1')">Connect</button>
       <button class="camera-disconnect-button" id="disconnect-button-camera-1" style="display: none;" onclick="disconnectWebsocket('camera-1')">Disconnect</button>
     </div>
@@ -41,7 +41,7 @@ function addCameraBlock() {
   cameraBlock.classList.add('camera-block');
   cameraBlock.innerHTML = `
     <div class="url-block url-block-${cameraCount}">
-      <input type="text" id="camera-url-${cameraBlockId}" placeholder="Enter camera ip address" size="30">
+      <input type="text" id="camera-url-${cameraBlockId}" placeholder="Enter camera url address" size="30">
       <button class="camera-connect-button" id="connect-button-${cameraBlockId}" onclick="connectCamera('${cameraBlockId}')">Connect</button>
       <button class="camera-disconnect-button" id="disconnect-button-${cameraBlockId}" style="display: none;" onclick="disconnectWebsocket('${cameraBlockId}')">Disconnect</button>
     </div>
@@ -87,7 +87,7 @@ async function connectCamera(cameraBlockId) {
 
 
 async function connectToCamera(cameraBlockId) {
-  const url = document.getElementById(`camera-url-${cameraBlockId}`).value;
+  const url = await getCameraURL(cameraBlockId);
   const response = await fetch('/connect_camera', {
     method: 'POST',
     headers: {
@@ -105,6 +105,22 @@ async function connectToCamera(cameraBlockId) {
   return data.camera_id;
 }
 
+async function getCameraURL(cameraBlockId) {
+  const cameraConfigID = document.getElementById(`camera-url-${cameraBlockId}`).value;
+  const response = await fetch(`/camera_config/${cameraConfigID}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
+  if (!response.ok) {
+        console.error('Error getting camera config:', await response.json());
+        return;
+  }
+  const config = await response.json();
+  const cameraUrl = config.camera_config.url;
+  return cameraUrl;
+}
 
 function handleWebSocket(cameraBlockId, cameraId) {
   const ws = new WebSocket(`ws://${window.location.host}/ws/camera/${cameraId}`);

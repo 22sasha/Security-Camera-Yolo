@@ -2,9 +2,9 @@
 
 {% block content %}
 <h1>Configuration</h1>
-<div id="ip-connecion-forms">
+<div id="url-connecion-forms">
     <div id="add-connection-form">
-        <input type="text" id="newTextField" placeholder="Enter camera ip address">
+        <input type="text" id="newTextField" placeholder="Enter camera url address">
         <button onclick="addTextField()">Add</button>
     </div>
 
@@ -12,7 +12,7 @@
         {% for config in configs %}
         <div class="connection-item" id="field-{{ config.id }}">
             <span>ID: {{ config.id }}</span>
-            <input type="text" value="{{ config.ip }}" disabled>
+            <input type="text" value="{{ config.url }}" disabled>
             <button onclick="deleteTextField({{ config.id }})">Delete</button>
         </div>
         {% endfor %}
@@ -38,7 +38,7 @@
 
         const newInput = document.createElement('input');
         newInput.type = 'text';
-        newInput.value = newConfig.ip;
+        newInput.value = newConfig.url;
         newInput.disabled = true;
 
         const deleteButton = document.createElement('button');
@@ -58,17 +58,17 @@
 
     async function addTextField() {
         const input = document.getElementById('newTextField');
-        const ip = input.value;
-        if (ip) {
+        const url = input.value;
+        if (url) {
             const response = await fetch(`camera_config`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ ip: ip }),
+                body: JSON.stringify({ url: url }),
             });
             if (!response.ok) {
-                console.error('Error adding ip connection form:', await response.json());
+                console.error('Error adding url connection form:', await response.json());
             }
             const newConfig = await response.json();
             loadTextFields(newConfig.camera_config);
@@ -81,7 +81,7 @@
             method: "DELETE",
         });
         if (!response.ok) {
-            console.error('Error deleting ip connection form:', await response.json());
+            console.error('Error deleting url connection form:', await response.json());
         }
         else {
             const divToRemove = document.getElementById(`field-${id}`);

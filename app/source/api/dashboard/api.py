@@ -1,12 +1,12 @@
-from fastapi.responses import StreamingResponse, HTMLResponse
-from fastapi import APIRouter, Request, Query, HTTPException
+from fastapi.responses import HTMLResponse
+from fastapi import APIRouter, Request, HTTPException, Depends
 from fastapi.templating import Jinja2Templates
 from common.camera import Camera
 from typing import Dict
 from uuid import uuid4
 import os
 import asyncio
-from fastapi import WebSocket, WebSocketDisconnect, Body
+from fastapi import WebSocket, WebSocketDisconnect
 from pydantic import BaseModel
 import base64
 

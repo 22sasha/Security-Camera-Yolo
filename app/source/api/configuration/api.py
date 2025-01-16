@@ -13,6 +13,15 @@ router = APIRouter(
 )
 templates = Jinja2Templates(directory="templates")
 
+
+@router.get("/camera_config/{camera_id}")
+async def get_camera_config(camera_id: int, 
+                            service: CameraConfigServiceInterface = Depends(get_camera_config_service)):
+    params = CameraConfigParams.Read(id=camera_id)  
+    config = await service.read(params=params)
+    return config
+
+
 @router.get("/configuration", response_class=HTMLResponse)
 async def read_configuration(request: Request,
                              page: int = 1,
@@ -23,7 +32,7 @@ async def read_configuration(request: Request,
     params = CameraConfigParams.List(pagination=pagination_params, sort=sort_params)
     configs = await service.list(params=params)
 
-    total_pages = ceil(configs.total / per_page)
+    total_pages = max(1, ceil(configs.total / per_page))
 
     response = templates.TemplateResponse("configuration.html", 
         {
