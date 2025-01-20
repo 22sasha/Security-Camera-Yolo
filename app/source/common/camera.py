@@ -41,7 +41,7 @@ class Camera:
         if self.cap.isOpened():
             self.cap.release()
         cv2.destroyAllWindows()
-        if self.thread.is_alive() and self.camera_ready:
+        if self.thread.is_alive():
             self.thread.join(5)
 
     def __capture_video(self, url):
