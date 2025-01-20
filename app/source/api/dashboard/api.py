@@ -1,8 +1,8 @@
 from fastapi.responses import HTMLResponse
 from fastapi import APIRouter, Request, HTTPException, Depends
 from fastapi.templating import Jinja2Templates
-# from common.camera import Camera
-from common.cam_debug import Camera
+from common.camera import Camera
+# from common.cam_debug import Camera
 from typing import Dict
 from uuid import uuid4
 import os
@@ -37,7 +37,7 @@ async def connect_camera(request: CameraConnectionRequest):
         camera = Camera(request.url, camera_id)
         if not camera.cap.isOpened():
             raise HTTPException(status_code=503, detail="Camera could not be opened")    
-        await asyncio.sleep(5)
+        await asyncio.sleep(2)
         camera_cache[camera_id] = camera
         print(camera_cache)
         return {"camera_id": camera_id}

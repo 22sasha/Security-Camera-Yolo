@@ -4,6 +4,7 @@ from ultralytics import YOLO
 import torch
 import threading
 from fastapi import HTTPException
+import time
 
 
 class Camera:
@@ -21,7 +22,8 @@ class Camera:
         self.height = int(os.getenv("CAMERA_HEIGHT", 480))
         self.queue_size = int(os.getenv("CAMERA_QUEUE_SIZE", 30))
         self.confidence = float(os.getenv("MODEL_CONFIDENCE", 0.2))
-
+        self.frame_delay = float(os.getenv("FRAME_DELAY", 0.1))
+        
         self.camera_ready = False
         self.url = url
         self.camera_id = camera_id
@@ -45,7 +47,8 @@ class Camera:
     def __capture_video(self, url):
         cap = cv2.VideoCapture(url)
         cap.set(cv2.CAP_PROP_BUFFERSIZE, 3)
-        self.camera_ready = True
+        if cap.isOpened():
+            self.camera_ready = True
         return cap
 
     def __process_prediction(self, results):
@@ -61,12 +64,13 @@ class Camera:
         return detections
 
     def __update_frame(self):
-        while self.is_active:
+        while self.is_active and self.camera_ready:
             success, image = self.cap.read()
             if not success:
                 self.stop()
                 raise HTTPException(503, "Camera connection Error")
             self.image = image
+            # time.sleep(self.frame_delay * 0.5)
         self.stop()
 
     def get_frame(self):
