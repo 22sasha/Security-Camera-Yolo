@@ -23,6 +23,8 @@ class Camera:
         self.queue_size = int(os.getenv("CAMERA_QUEUE_SIZE", 30))
         self.confidence = float(os.getenv("MODEL_CONFIDENCE", 0.2))
         self.frame_delay = float(os.getenv("FRAME_DELAY", 0.1))
+        
+        self.camera_ready = False
         self.url = url
         self.camera_id = camera_id
         self.cap = self.__capture_video(url)
@@ -45,14 +47,15 @@ class Camera:
         if self.cap.isOpened():
             self.cap.release()
         cv2.destroyAllWindows()
-        if self.thread.is_alive():
+        if self.thread.is_alive() and self.camera_ready:
             self.thread.join(5)
-        if self.thread2.is_alive():
+        if self.thread2.is_alive() and self.camera_ready:
             self.thread.join(5)
 
     def __capture_video(self, url):
         cap = cv2.VideoCapture(url)
         cap.set(cv2.CAP_PROP_BUFFERSIZE, 3)
+        self.camera_ready = True
         return cap
 
     def __process_prediction(self, results):
@@ -69,7 +72,7 @@ class Camera:
 
     def __update_frame(self):
         count = 0
-        while self.is_active:
+        while self.is_active and self.camera_ready:
             count += 1
             if count == 20:
                 print(f"__update_frame: {self.camera_id}")    

@@ -78,22 +78,35 @@ function toggleButtons(cameraBlockId, isConnected) {
   }
 }
 
-async function connectCamera(cameraBlockId) {
-  const cameraId = await connectToCamera(cameraBlockId);
-  if (cameraId) {
-    handleWebSocket(cameraBlockId, cameraId);
+function saveCameraState(cameraBlockId, cameraId, url) {
+  const cameras = JSON.parse(localStorage.getItem('cameras') || '{}');
+  cameras[cameraBlockId] = { cameraId, url };
+  localStorage.setItem('cameras', JSON.stringify(cameras));
+}
+
+function removeCameraState(cameraBlockId) {
+  const cameras = JSON.parse(localStorage.getItem('cameras') || '{}');
+  delete cameras[cameraBlockId];
+  localStorage.setItem('cameras', JSON.stringify(cameras));
+}
+
+async function connectCamera(cameraBlockId, cameraId = null) {
+  const newCameraId = await connectToCamera(cameraBlockId, cameraId);
+  if (newCameraId) {
+    const url = document.getElementById(`camera-url-${cameraBlockId}`).value;
+    saveCameraState(cameraBlockId, newCameraId, url);
+    handleWebSocket(cameraBlockId, newCameraId);
   }
 }
 
-
-async function connectToCamera(cameraBlockId) {
+async function connectToCamera(cameraBlockId, cameraId = null) {
   const url = await getCameraURL(cameraBlockId);
   const response = await fetch('/connect_camera', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ url: url })
+    body: JSON.stringify({ url: url, cameraId: cameraId })
   });
   if (!response.ok) {
     const errorData = await response.json();
@@ -196,8 +209,21 @@ async function disconnectCamera(cameraBlockId) {
       console.error('Error disconnecting camera:', await response.json());
     }
     toggleButtons(cameraBlockId, false);
+    removeCameraState(cameraBlockId);
   }
 }
+
+function restoreCameras() {  
+  const cameras = JSON.parse(localStorage.getItem('cameras') || '{}');
+  Object.keys(cameras).forEach(cameraBlockId => {
+    const { cameraId, url } = cameras[cameraBlockId];
+    addCameraBlock();
+    document.getElementById(`camera-url-${cameraBlockId}`).value = url;
+    connectCamera(cameraBlockId, cameraId);
+  });
+}
+
+window.onload = restoreCameras;
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));

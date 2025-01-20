@@ -23,6 +23,7 @@ camera_cache: Dict[str, Camera] = {}
 
 class CameraConnectionRequest(BaseModel):
     url: str
+    cameraId: str | None = None
 
 
 class CameraDisconnectionRequest(BaseModel):
@@ -30,16 +31,19 @@ class CameraDisconnectionRequest(BaseModel):
 
 @router.post("/connect_camera")
 async def connect_camera(request: CameraConnectionRequest):
-    camera_id = str(uuid4())
-    camera = Camera(request.url, camera_id)
-    if not camera.cap.isOpened():
-        raise HTTPException(status_code=503, detail="Camera could not be opened")
-    
-    await asyncio.sleep(5)
-    camera_cache[camera_id] = camera
-    print(camera_cache)
-    return {"camera_id": camera_id}
+    print(request)
+    if request.cameraId not in camera_cache:
+        camera_id = str(uuid4())
+        camera = Camera(request.url, camera_id)
+        if not camera.cap.isOpened():
+            raise HTTPException(status_code=503, detail="Camera could not be opened")    
+        await asyncio.sleep(5)
+        camera_cache[camera_id] = camera
+        print(camera_cache)
+        return {"camera_id": camera_id}
 
+    print(camera_cache)
+    return {"camera_id": request.cameraId}
 
 @router.websocket("/ws/camera/{camera_id}")
 async def websocket_endpoint(websocket: WebSocket, camera_id: str):
