@@ -31,7 +31,6 @@ class CameraDisconnectionRequest(BaseModel):
 
 @router.post("/connect_camera")
 async def connect_camera(request: CameraConnectionRequest):
-    print(request)
     if request.cameraId not in camera_cache:
         camera_id = str(uuid4())
         camera = Camera(request.url, camera_id)
@@ -77,6 +76,7 @@ async def index(request: Request):
     width = int(os.getenv("CAMERA_WIDTH", 640))
     height = int(os.getenv("CAMERA_HEIGHT", 480))
     
+    print(camera_cache)
     context = {
         "request": request,
         "width": width,
