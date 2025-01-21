@@ -2,48 +2,29 @@
 
 {% block content %}
 <h1>Dashboard</h1>
-<div class="camera-blocks" id="camera-blocks">
-  <div class="camera-block" id="camera-1">
-    <div class="url-block url-block-1">
-      <input type="text" id="camera-url-camera-1" placeholder="Enter camera URL" size="20">
-      <button onclick="connectCamera('camera-1')">Connect</button>
-    </div>
-
-    <div class="video-and-detection">
-      <div class="video-container" style="width: {{ width }}px; height: {{ height }}px;">
-        <img id="camera-stream-camera-1" src="" alt="Camera Stream">
-      </div>
-      <div class="detect-container">
-        <div class="detect detect0-camera-1">
-          <img src="/static/images/empty.png" alt="fire">
-        </div>
-        <div class="detect detect1-camera-1">
-          <img src="/static/images/empty.png" alt="smoke">
-        </div>
-      </div>
-      
-    </div>
-  </div>
-</div>
+<div class="camera-blocks" id="camera-blocks"></div>
 <br>
 <button onclick="addCameraBlock()" class="add_block_button">Add Camera Block</button>
 
-
 <script>
-let cameraCount = 2;
+let cameraCount = 1;
+const cameraWebSockets = {};
+const cameraIDs = {};
 
 function addCameraBlock() {
   const cameraBlockId = `camera-${cameraCount}`;
   const cameraBlock = document.createElement('div');
   cameraBlock.classList.add('camera-block');
+  cameraBlock.id = cameraBlockId;
   cameraBlock.innerHTML = `
     <div class="url-block url-block-${cameraCount}">
-      <input type="text" id="camera-url-${cameraBlockId}" placeholder="Enter camera URL" size="20">
-      <button onclick="connectCamera('${cameraBlockId}')">Connect</button>
+      <input type="text" id="camera-url-${cameraBlockId}" placeholder="Enter camera config ID" size="30">
+      <button class="camera-connect-button" id="connect-button-${cameraBlockId}" onclick="connectCamera('${cameraBlockId}')">Connect</button>
+      <button class="camera-disconnect-button" id="disconnect-button-${cameraBlockId}" style="display: none;" onclick="disconnectWebsocket('${cameraBlockId}')">Disconnect</button>
     </div>
     <div class="video-and-detection">
       <div class="video-container" style="width: {{ width }}px; height: {{ height }}px;">
-        <img id="camera-stream-${cameraBlockId}" src="" alt="Camera Stream">
+        <img id="camera-stream-${cameraBlockId}" src="/static/images/empty.png" alt="Camera Stream" style="width: {{ width }}px; height: {{ height }}px;">
       </div>
 
       <div class="detect-container">
@@ -61,7 +42,193 @@ function addCameraBlock() {
   cameraCount++;
 }
 
+function initializeCameraBlocks() {
+  for (let i = 0; i < 12; i++) {
+    addCameraBlock();
+  }
+}
 
+function disableButton(buttonId, duration) {
+  const button = document.getElementById(buttonId);
+  button.disabled = true;
+  setTimeout(() => {
+    button.disabled = false;
+  }, duration);
+}
 
+function toggleButtons(cameraBlockId, isConnected) {
+  const connectButton = document.getElementById(`connect-button-${cameraBlockId}`);
+  const disconnectButton = document.getElementById(`disconnect-button-${cameraBlockId}`);
+
+  if (isConnected) {
+    connectButton.style.display = 'none';
+    disconnectButton.style.display = 'inline-block';
+  } else {
+    connectButton.style.display = 'inline-block';
+    disconnectButton.style.display = 'none';
+  }
+}
+
+function saveCameraState(cameraBlockId, cameraId, url) {
+  const cameras = JSON.parse(localStorage.getItem('cameras') || '{}');
+  cameras[cameraBlockId] = { cameraId, url };
+  localStorage.setItem('cameras', JSON.stringify(cameras));
+}
+
+function removeCameraState(cameraBlockId) {
+  const cameras = JSON.parse(localStorage.getItem('cameras') || '{}');
+  delete cameras[cameraBlockId];
+  localStorage.setItem('cameras', JSON.stringify(cameras));
+}
+
+async function connectCamera(cameraBlockId, cameraId = null) {
+  const connectButtonId = `connect-button-${cameraBlockId}`;
+  disableButton(connectButtonId, 5000); 
+
+  const newCameraId = await connectToCamera(cameraBlockId, cameraId);
+  if (newCameraId) {
+    const url = document.getElementById(`camera-url-${cameraBlockId}`).value;
+    saveCameraState(cameraBlockId, newCameraId, url);
+    handleWebSocket(cameraBlockId, newCameraId);
+  }
+}
+
+async function connectToCamera(cameraBlockId, cameraId = null) {
+  const url = await getCameraURL(cameraBlockId);
+  const response = await fetch('/connect_camera', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ url: url, cameraId: cameraId })
+  });
+  if (!response.ok) {
+    const errorData = await response.json();
+    console.error('Error connecting camera:', errorData);
+    toggleButtons(cameraBlockId, false);
+    return null;
+  }
+  const data = await response.json();
+  return data.camera_id;
+}
+
+async function getCameraURL(cameraBlockId) {
+  const cameraConfigID = document.getElementById(`camera-url-${cameraBlockId}`).value;
+  const response = await fetch(`/camera_config/${cameraConfigID}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
+  if (!response.ok) {
+        console.error('Error getting camera config:', await response.json());
+        return;
+  }
+  const config = await response.json();
+  const cameraUrl = config.camera_config.url;
+  return cameraUrl;
+}
+
+function handleWebSocket(cameraBlockId, cameraId) {
+  const ws = new WebSocket(`ws://${window.location.host}/ws/camera/${cameraId}`);
+  cameraWebSockets[cameraBlockId] = ws;
+  cameraIDs[cameraBlockId] = cameraId;
+
+  ws.onopen = function(event) {
+    console.log(`WebSocket connection opened for camera id: ${cameraId}`);
+    toggleButtons(cameraBlockId, true);
+  }
+
+  ws.onmessage = function(event) {
+    const data = JSON.parse(event.data);
+    const frame = data.frame;
+    const detections = data.detections;
+
+    document.getElementById(`camera-stream-${cameraBlockId}`).src = `data:image/jpeg;base64,${frame}`;
+    document.querySelector(`.detect0-${cameraBlockId} img`).src = "/static/images/empty.png";
+    document.querySelector(`.detect1-${cameraBlockId} img`).src = "/static/images/empty.png";
+
+    detections.forEach((detection) => {
+      if (detection.class_id === 0) {
+        document.querySelector(`.detect0-${cameraBlockId} img`).src = "/static/images/fire.png";
+      } else if (detection.class_id === 1) {
+        document.querySelector(`.detect1-${cameraBlockId} img`).src = "/static/images/smoke.png";
+      }
+    });
+  };
+
+  ws.onerror = function(event) {
+    disconnectWebsocket(cameraBlockId);
+    console.error(`WebSocket error for camera id: ${cameraId}`, event);
+  };
+
+  ws.onclose = function(event) {
+    disconnectCamera(cameraBlockId);
+    console.log(`WebSocket connection closed for camera id: ${cameraId}`);
+  };
+
+}
+
+async function disconnectWebsocket(cameraBlockId) {
+  const disconnectButtonId = `disconnect-button-${cameraBlockId}`;
+  disableButton(disconnectButtonId, 5000);
+
+  if (cameraWebSockets[cameraBlockId] && cameraIDs[cameraBlockId]) {
+    cameraWebSockets[cameraBlockId].close();
+  }
+}
+
+async function disconnectCamera(cameraBlockId) {
+  if (cameraWebSockets[cameraBlockId] && cameraIDs[cameraBlockId]) {
+    let camera_id = cameraIDs[cameraBlockId];
+    
+    if (cameraWebSockets[cameraBlockId].readyState === WebSocket.OPEN) {
+      cameraWebSockets[cameraBlockId].close();
+    }
+    delete cameraWebSockets[cameraBlockId];
+    delete cameraIDs[cameraBlockId];
+
+    document.getElementById(`camera-stream-${cameraBlockId}`).src = "/static/images/empty.png";
+    document.querySelector(`.detect0-${cameraBlockId} img`).src = "/static/images/empty.png";
+    document.querySelector(`.detect1-${cameraBlockId} img`).src = "/static/images/empty.png";
+
+    // await sleep(500);
+
+    const response = await fetch('/disconnect_camera', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ camera_id: camera_id  })
+    });
+
+    if (!response.ok) {
+      console.error('Error disconnecting camera:', await response.json());
+    }
+    toggleButtons(cameraBlockId, false);
+    removeCameraState(cameraBlockId);
+  }
+}
+
+function restoreCameras() {  
+  const cameras = JSON.parse(localStorage.getItem('cameras') || '{}');
+  Object.keys(cameras).forEach(cameraBlockId => {
+    const { cameraId, url } = cameras[cameraBlockId];
+    while (!document.getElementById(cameraBlockId)) {
+      addCameraBlock();
+    }
+    document.getElementById(`camera-url-${cameraBlockId}`).value = url;
+    connectCamera(cameraBlockId, cameraId);
+  });
+}
+
+window.onload = function() {
+  initializeCameraBlocks();
+  restoreCameras();
+};
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 </script>
 {% endblock %}

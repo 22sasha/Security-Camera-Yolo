@@ -1,6 +1,107 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Welcome to Page 3!</h1>
-<p>This is the content of page 3.</p>
+<h1>Configuration</h1>
+<div id="url-connecion-forms">
+    <div id="add-connection-form">
+        <input type="text" id="newTextField" placeholder="Enter camera url address">
+        <button onclick="addTextField()">Add</button>
+    </div>
+
+    <div id="list-connection-form">
+        {% for config in configs %}
+        <div class="connection-item" id="field-{{ config.id }}">
+            <span>ID: {{ config.id }}</span>
+            <input type="text" value="{{ config.url }}" disabled>
+            <button onclick="deleteTextField({{ config.id }})">Delete</button>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div id="pagination">
+    <button id="prev-page" onclick="changePage({{ current_page - 1 }})" {% if current_page == 1 %}disabled{% endif %}>Предыдущая</button>
+    <span id="current-page">{{ current_page }}</span> / <span id="total-pages">{{ total_pages }}</span>
+    <button id="next-page" onclick="changePage({{ current_page + 1 }})" {% if current_page == total_pages %}disabled{% endif %}>Следующая</button>
+</div>
+
+<script>
+    async function loadTextFields(newConfig) {
+        const container = document.getElementById("list-connection-form");
+
+        const newDiv = document.createElement('div');
+        newDiv.className = 'connection-item';
+        newDiv.id = `field-${newConfig.id}`;
+
+        const idSpan = document.createElement('span');
+        idSpan.textContent = `ID: ${newConfig.id}`;
+
+        const newInput = document.createElement('input');
+        newInput.type = 'text';
+        newInput.value = newConfig.url;
+        newInput.disabled = true;
+
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.onclick = async function() {
+            await deleteTextField(newConfig.id);
+            newDiv.remove();
+        };
+
+        newDiv.appendChild(idSpan);
+        newDiv.appendChild(newInput);
+        newDiv.appendChild(deleteButton);
+        container.insertBefore(newDiv, container.firstChild);
+    }
+
+
+
+    async function addTextField() {
+        const input = document.getElementById('newTextField');
+        const url = input.value;
+        if (url) {
+            const response = await fetch(`camera_config`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ url: url }),
+            });
+            if (!response.ok) {
+                console.error('Error adding url connection form:', await response.json());
+            }
+            const newConfig = await response.json();
+            loadTextFields(newConfig.camera_config);
+            input.value = '';
+        }
+    }
+
+    async function deleteTextField(id) {
+        const response = await fetch(`camera_config/${id}`, {
+            method: "DELETE",
+        });
+        if (!response.ok) {
+            console.error('Error deleting url connection form:', await response.json());
+        }
+        else {
+            const divToRemove = document.getElementById(`field-${id}`);
+            if (divToRemove) {
+                divToRemove.remove();
+            }
+        }
+    }
+
+    async function changePage(page) {
+        const response = await fetch(`/configuration?page=${page}`, {
+            method: "GET",
+        });
+        if (response.ok) {
+            const html = await response.text();
+            document.body.innerHTML = html;
+        } else {
+            console.error('Error changing page:', await response.json());
+        }
+    }
+</script>
+
 {% endblock %}
