@@ -38,6 +38,7 @@ class Camera:
 
     def cleanup(self):
         self.is_active = False
+        time.sleep(1)
         if self.cap.isOpened():
             self.cap.release()
         cv2.destroyAllWindows()

@@ -63,6 +63,10 @@ async def websocket_endpoint(websocket: WebSocket, camera_id: str):
 async def disconnect_camera(request: CameraDisconnectionRequest):
     if request.camera_id in camera_cache:
         camera_cache[request.camera_id].stop()
+
+        if camera_cache[request.camera_id].thread.is_alive:
+            camera_cache[request.camera_id].thread.join(5)
+
         del camera_cache[request.camera_id]
         return {"message": f"Camera {request.camera_id} disconnected and removed from cache"}
     raise HTTPException(status_code=404, detail="Camera not found")
