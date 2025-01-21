@@ -48,6 +48,14 @@ function initializeCameraBlocks() {
   }
 }
 
+function disableButton(buttonId, duration) {
+  const button = document.getElementById(buttonId);
+  button.disabled = true;
+  setTimeout(() => {
+    button.disabled = false;
+  }, duration);
+}
+
 function toggleButtons(cameraBlockId, isConnected) {
   const connectButton = document.getElementById(`connect-button-${cameraBlockId}`);
   const disconnectButton = document.getElementById(`disconnect-button-${cameraBlockId}`);
@@ -74,6 +82,9 @@ function removeCameraState(cameraBlockId) {
 }
 
 async function connectCamera(cameraBlockId, cameraId = null) {
+  const connectButtonId = `connect-button-${cameraBlockId}`;
+  disableButton(connectButtonId, 5000); 
+
   const newCameraId = await connectToCamera(cameraBlockId, cameraId);
   if (newCameraId) {
     const url = document.getElementById(`camera-url-${cameraBlockId}`).value;
@@ -159,6 +170,9 @@ function handleWebSocket(cameraBlockId, cameraId) {
 }
 
 async function disconnectWebsocket(cameraBlockId) {
+  const disconnectButtonId = `disconnect-button-${cameraBlockId}`;
+  disableButton(disconnectButtonId, 5000);
+
   if (cameraWebSockets[cameraBlockId] && cameraIDs[cameraBlockId]) {
     cameraWebSockets[cameraBlockId].close();
   }
