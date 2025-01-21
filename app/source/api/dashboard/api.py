@@ -38,10 +38,8 @@ async def connect_camera(request: CameraConnectionRequest):
             raise HTTPException(status_code=503, detail="Camera could not be opened")    
         await asyncio.sleep(2)
         camera_cache[camera_id] = camera
-        print(camera_cache)
         return {"camera_id": camera_id}
 
-    print(camera_cache)
     return {"camera_id": request.cameraId}
 
 @router.websocket("/ws/camera/{camera_id}")
@@ -76,7 +74,6 @@ async def index(request: Request):
     width = int(os.getenv("CAMERA_WIDTH", 640))
     height = int(os.getenv("CAMERA_HEIGHT", 480))
     
-    print(camera_cache)
     context = {
         "request": request,
         "width": width,
