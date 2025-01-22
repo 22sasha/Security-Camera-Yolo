@@ -1,24 +1,32 @@
 # nvidia cuda + ubuntu22.04
-FROM nvidia/cuda:12.4.1-cudnn-devel-ubuntu22.04
+FROM nvidia/cuda:12.6.3-cudnn-devel-ubuntu24.04
 ENV DEBIAN_FRONTEND=noninteractive
+
+RUN rm /etc/apt/sources.list.d/cuda.list
 
 # Python
 RUN apt-get update && \
-    apt-get install -y python3 python3-pip
+    apt-get install -y \
+    python3.12 \
+    python3.12-venv \
+    python3-pip \
+    curl \
+    ffmpeg \
+    libsm6 \
+    libxext6
+
 
 # ============================================================
 
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
-RUN pip3 install --upgrade pip setuptools
-
-RUN pip3 install torch torchvision torchaudio
-
-RUN apt-get update && apt-get install -y curl
-RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
+RUN python3 -m venv /venv
+RUN /venv/bin/python -m pip install --upgrade pip
+RUN /venv/bin/pip install torch torchvision torchaudio
 
 COPY ./requirements.txt /requirements.txt
-RUN pip3 install --no-cache-dir -r /requirements.txt
+RUN /venv/bin/pip install --no-cache-dir -r /requirements.txt
+
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
 
 ENV PYTHONPATH /project/source:/libs
 WORKDIR /project/source
