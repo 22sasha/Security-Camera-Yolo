@@ -91,6 +91,9 @@ h1.header-logo {
 .camera-connect-button:hover {
     background-color: #0056b3;
 }
+.camera-connect-button:active {
+    background-color: #02213f;
+}
 .camera-disconnect-button {
     background-color: #dc3545;
     color: white;
@@ -101,6 +104,9 @@ h1.header-logo {
 }
 .camera-disconnect-button:hover {
     background-color: #af2633;
+}
+.camera-disconnect-button:active {
+    background-color: #460e14;
 }
 .camera-blocks {
     display: flex;
@@ -155,7 +161,9 @@ h1.header-logo {
 .add_block_button:hover {
     background-color: #2d8341;
 }
-
+.add_block_button:active {
+    background-color: #103719;
+}
 
 /* Camera Config */
 
@@ -193,7 +201,9 @@ h1.header-logo {
 #add-connection-form button:hover {
     background-color: #0056b3;
 }
-
+#add-connection-form button:active {
+    background-color: #02213f;
+}
 #list-connection-form {
     display: flex;
     flex-direction: column;
@@ -237,7 +247,9 @@ h1.header-logo {
 .connection-item button:hover {
     background-color: #af2633;
 }
-
+.connection-item button:active {
+    background-color: #460e14;
+}
 /* Pagination */
 
 #pagination {
