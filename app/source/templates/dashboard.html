@@ -148,6 +148,13 @@ function handleWebSocket(cameraBlockId, cameraId) {
     document.querySelector(`.detect0-${cameraBlockId} img`).src = "/static/images/empty.png";
     document.querySelector(`.detect1-${cameraBlockId} img`).src = "/static/images/empty.png";
 
+    
+    if (detections.length > 0) {
+      document.querySelector(`.video-container`).style.boxShadow = '0 0 10px 5px red';
+    } else {
+      document.querySelector(`.video-container`).style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+    }
+    
     detections.forEach((detection) => {
       if (detection.class_id === 0) {
         document.querySelector(`.detect0-${cameraBlockId} img`).src = "/static/images/fire.png";
