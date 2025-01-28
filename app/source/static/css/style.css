@@ -14,7 +14,11 @@ header {
     right: 0;
     z-index: 1000;
     background-color: #333;
-    padding: 17px;
+    padding: 10px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 h1 {
     margin: 11px;
@@ -25,7 +29,11 @@ h1.header-logo {
     font-size: 24px;
     margin: 0;
 }
+.header-image {
+    height: 50px;
 
+    margin-left: 20px;
+}
 .side-panel {
     position: fixed;
     top: 60px;
@@ -60,7 +68,7 @@ h1.header-logo {
 
 .main-content {
     margin-left: 70px;
-    margin-top: 70px;
+    margin-top: 80px;
     margin-right: 10px;
     background-color: white;
     border-radius: 12px;
