@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Configuration</h1>
+<h1>Конфигурация</h1>
 <div id="url-connecion-forms">
     <div id="add-connection-form">
-        <input type="text" id="newTextField" placeholder="Enter camera url address">
-        <button onclick="addTextField()">Add</button>
+        <input type="text" id="newTextField" placeholder="Введите URL-адрес камеры">
+        <button onclick="addTextField()">Добавить</button>
     </div>
 
     <div id="list-connection-form">
@@ -13,7 +13,7 @@
         <div class="connection-item" id="field-{{ config.id }}">
             <span>ID: {{ config.id }}</span>
             <input type="text" value="{{ config.url }}" disabled>
-            <button onclick="deleteTextField({{ config.id }})">Delete</button>
+            <button onclick="deleteTextField({{ config.id }})">Удалить</button>
         </div>
         {% endfor %}
     </div>
