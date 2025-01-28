@@ -31,8 +31,7 @@ h1.header-logo {
 }
 .header-image {
     height: 50px;
-
-    margin-left: 20px;
+    margin-right: 20px;
 }
 .side-panel {
     position: fixed;
