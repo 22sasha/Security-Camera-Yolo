@@ -42,7 +42,7 @@
         newInput.disabled = true;
 
         const deleteButton = document.createElement('button');
-        deleteButton.textContent = 'Delete';
+        deleteButton.textContent = 'Удалить';
         deleteButton.onclick = async function() {
             await deleteTextField(newConfig.id);
             newDiv.remove();
