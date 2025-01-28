@@ -23,7 +23,7 @@ function addCameraBlock() {
       <button class="camera-disconnect-button" id="disconnect-button-${cameraBlockId}" style="display: none;" onclick="disconnectWebsocket('${cameraBlockId}')">Disconnect</button>
     </div>
     <div class="video-and-detection">
-      <div class="video-container" style="width: {{ width }}px; height: {{ height }}px;">
+      <div class="video-container video-container-${cameraBlockId}" style="width: {{ width }}px; height: {{ height }}px;">
         <img id="camera-stream-${cameraBlockId}" src="/static/images/empty.png" alt="Camera Stream" style="width: {{ width }}px; height: {{ height }}px;">
       </div>
 
@@ -150,9 +150,9 @@ function handleWebSocket(cameraBlockId, cameraId) {
 
     
     if (detections.length > 0) {
-      document.querySelector(`.video-container`).style.boxShadow = '0 0 10px 5px red';
+      document.querySelector(`.video-container-${cameraBlockId}`).style.boxShadow = '0 0 10px 5px red';
     } else {
-      document.querySelector(`.video-container`).style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+      document.querySelector(`.video-container-${cameraBlockId}`).style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
     }
     
     detections.forEach((detection) => {
@@ -198,6 +198,7 @@ async function disconnectCamera(cameraBlockId) {
     document.getElementById(`camera-stream-${cameraBlockId}`).src = "/static/images/empty.png";
     document.querySelector(`.detect0-${cameraBlockId} img`).src = "/static/images/empty.png";
     document.querySelector(`.detect1-${cameraBlockId} img`).src = "/static/images/empty.png";
+    document.querySelector(`.video-container-${cameraBlockId}`).style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
 
     // await sleep(500);
 
