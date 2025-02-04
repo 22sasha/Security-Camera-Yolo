@@ -25,7 +25,7 @@ async def get_camera_config(camera_id: int,
 @router.get("/configuration", response_class=HTMLResponse)
 async def read_configuration(request: Request,
                              page: int = 1,
-                             per_page: int = 10,
+                             per_page: int = 3,
                              service: CameraConfigServiceInterface = Depends(get_camera_config_service)):
     pagination_params = PaginationParams(page=page, perPage=per_page)
     sort_params = SortParams(sortBy="id", sortOrder=SortOrder.Desc)
