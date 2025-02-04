@@ -6,4 +6,5 @@ from .base import Base
 class CameraConfig(Base): 
     __tablename__ = 'camera_configs' 
 
-    url: Mapped[str] = mapped_column(String)
+    name: Mapped[str] = mapped_column(String(128))
+    url: Mapped[str] = mapped_column(String(256))
