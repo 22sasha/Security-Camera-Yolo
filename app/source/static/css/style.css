@@ -130,6 +130,7 @@ h1.header-logo {
     display: flex; 
     align-items: flex-start; 
     gap: 20px; 
+    position: relative;
 }
 .video-container { 
     border: 2px solid #bfbebe;
@@ -170,6 +171,20 @@ h1.header-logo {
 }
 .add_block_button:active {
     background-color: #103719;
+}
+
+.camera-name {
+    position: absolute;
+    bottom: 5%;
+    right: 5%;
+    font-size: 16px;
+    color: #e6dede;
+    text-shadow:
+    -0.5px -0.5px 0 black,
+    0.5px -0.5px 0 black,
+    -0.5px 0.5px 0 black,
+    0.5px 0.5px 0 black;
+    z-index: 100;
 }
 
 /* Camera Config */

@@ -25,6 +25,7 @@ function addCameraBlock() {
                 <img src="/static/images/empty.png" alt="smoke">
             </div>
         </div>
+        <div class="camera-name" id="camera-name-${cameraBlockId}" style="display: none;"></div>
     </div>
   `;
     document.getElementById('camera-blocks').appendChild(cameraBlock);
