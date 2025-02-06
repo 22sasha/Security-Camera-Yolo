@@ -79,7 +79,13 @@ h1.header-logo {
 /* Dashboard */
 
 .url-block { 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     margin-bottom: 1px;
+    position: absolute;
+    top: 50%;
+    z-index: 100;
 }
 .url-block input {
     padding: 5px 5px;
@@ -123,14 +129,16 @@ h1.header-logo {
 }
 .camera-block { 
     display: flex; 
+    position: relative;
     flex-direction: column; 
-    align-items: flex-start; 
+    align-items: center; 
 }
 .video-and-detection { 
     display: flex; 
     align-items: flex-start; 
     gap: 20px; 
     position: relative;
+    z-index: 0;
 }
 .video-container { 
     border: 2px solid #bfbebe;
@@ -141,11 +149,13 @@ h1.header-logo {
     width: auto; 
     /* width: calc(33.333% - 20px); */
     height: auto; 
+    z-index: 0;
 }
 .detect-container { 
     display: flex; 
     gap: 2px;
     position: absolute;
+    z-index: 0;
 }
 .detect { 
     width: 40px; 
