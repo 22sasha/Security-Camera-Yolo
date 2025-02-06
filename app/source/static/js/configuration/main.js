@@ -20,7 +20,7 @@ async function loadTextFields(newConfig) {
 
     const deleteButton = document.createElement('button');
     deleteButton.textContent = 'Удалить';
-    deleteButton.onclick = async function() {
+    deleteButton.onclick = async function () {
         await deleteTextField(newConfig.id);
         newDiv.remove();
     };
@@ -40,7 +40,7 @@ async function addTextField() {
 
     const inputUrl = document.getElementById('newTextField');
     const url = inputUrl.value;
-    
+
     if (url && name) {
         const response = await fetch(`camera_config`, {
             method: "PUT",
