@@ -4,14 +4,21 @@
 <h1>Конфигурация</h1>
 <div id="url-connecion-forms">
     <div id="add-connection-form">
+        <input type="text" id="newNameField" placeholder="Введите имя камеры">
         <input type="text" id="newTextField" placeholder="Введите URL-адрес камеры">
         <button onclick="addTextField()">Добавить</button>
     </div>
-
+    <div class="connection-item header" style="margin-bottom: 10px;">
+        <span>ID</span>
+        <span style="padding-right: 38%;">Имя камеры</span>
+        <span>URL-адрес камеры</span>
+    </div>
     <div id="list-connection-form">
+        
         {% for config in configs %}
         <div class="connection-item" id="field-{{ config.id }}">
-            <span>ID: {{ config.id }}</span>
+            <span>{{ config.id }}</span>
+            <input type="text" value="{{ config.name }}" disabled>
             <input type="text" value="{{ config.url }}" disabled>
             <button onclick="deleteTextField({{ config.id }})">Удалить</button>
         </div>
@@ -34,12 +41,17 @@
         newDiv.id = `field-${newConfig.id}`;
 
         const idSpan = document.createElement('span');
-        idSpan.textContent = `ID: ${newConfig.id}`;
+        idSpan.textContent = `${newConfig.id}`;
 
-        const newInput = document.createElement('input');
-        newInput.type = 'text';
-        newInput.value = newConfig.url;
-        newInput.disabled = true;
+        const newNameInput = document.createElement('input');
+        newNameInput.type = 'text';
+        newNameInput.value = newConfig.name;
+        newNameInput.disabled = true;
+
+        const newUrlInput = document.createElement('input');
+        newUrlInput.type = 'text';
+        newUrlInput.value = newConfig.url;
+        newUrlInput.disabled = true;
 
         const deleteButton = document.createElement('button');
         deleteButton.textContent = 'Удалить';
@@ -49,7 +61,8 @@
         };
 
         newDiv.appendChild(idSpan);
-        newDiv.appendChild(newInput);
+        newDiv.appendChild(newNameInput);
+        newDiv.appendChild(newUrlInput);
         newDiv.appendChild(deleteButton);
         container.insertBefore(newDiv, container.firstChild);
     }
@@ -57,22 +70,27 @@
 
 
     async function addTextField() {
-        const input = document.getElementById('newTextField');
-        const url = input.value;
-        if (url) {
+        const inputName = document.getElementById('newNameField');
+        const name = inputName.value;
+
+        const inputUrl = document.getElementById('newTextField');
+        const url = inputUrl.value;
+        
+        if (url && name) {
             const response = await fetch(`camera_config`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ url: url }),
+                body: JSON.stringify({ name: name, url: url }),
             });
             if (!response.ok) {
                 console.error('Error adding url connection form:', await response.json());
             }
             const newConfig = await response.json();
             loadTextFields(newConfig.camera_config);
-            input.value = '';
+            inputName.value = '';
+            inputUrl.value = '';
         }
     }
 
