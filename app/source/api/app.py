@@ -23,11 +23,3 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 @app.get("/", response_class=HTMLResponse)
 async def read_home(request: Request):
     return templates.TemplateResponse("home.html", {"request": request})
-
-# @app.get("/dashboard", response_class=HTMLResponse)
-# async def read_dashboard(request: Request):
-#     return templates.TemplateResponse("dashboard.html", {"request": request})
-
-# @app.get("/configuration", response_class=HTMLResponse)
-# async def read_configuration(request: Request):
-#     return templates.TemplateResponse("configuration.html", {"request": request})

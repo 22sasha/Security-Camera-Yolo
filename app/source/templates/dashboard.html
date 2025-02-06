@@ -6,8 +6,12 @@
 <br>
 <button onclick="addCameraBlock()" class="add_block_button">Добавить блок камеры</button>
 
+<audio id="myAudio">
+  <source src="/static/utils/beap.mp3" type="audio/mpeg">
+</audio>
 <script>
 let cameraCount = 1;
+const enableSound = 1;
 const cameraWebSockets = {};
 const cameraIDs = {};
 
@@ -154,6 +158,7 @@ function handleWebSocket(cameraBlockId, cameraId) {
 
     
     if (detections.length > 0) {
+      if (enableSound === 1) { playAudio(); }
       document.querySelector(`.video-container-${cameraBlockId}`).style.boxShadow = '0 0 10px 5px red';
     } else {
       document.querySelector(`.video-container-${cameraBlockId}`).style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
@@ -238,6 +243,10 @@ window.onload = function() {
   initializeCameraBlocks();
   restoreCameras();
 };
+
+function playAudio() {
+    document.getElementById("myAudio").play();
+}
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
