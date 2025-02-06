@@ -73,10 +73,11 @@ async def disconnect_camera(request: CameraDisconnectionRequest):
 async def index(request: Request):
     width = int(os.getenv("CAMERA_WIDTH", 640))
     height = int(os.getenv("CAMERA_HEIGHT", 480))
-    
+    enable_audio = int(os.getenv("ENABLE_AUDIO", 0))
     context = {
         "request": request,
         "width": width,
-        "height": height
+        "height": height,
+        "enable_audio": enable_audio
     }
     return templates.TemplateResponse('dashboard.html', context)
