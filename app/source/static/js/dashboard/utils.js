@@ -14,7 +14,7 @@ function toggleButtons(cameraBlockId, isConnected) {
 
     if (isConnected) {
         connectButton.style.display = 'none';
-        disconnectButton.style.display = 'inline-block';
+        disconnectButton.style.display = 'flex';
         connectionInput.style.display = 'none';
         cameraName.style.display = 'flex';
     } else {

@@ -8,10 +8,10 @@ function addCameraBlock() {
     cameraBlock.classList.add('camera-block');
     cameraBlock.id = cameraBlockId;
     cameraBlock.innerHTML = `
+    <button class="camera-disconnect-button" id="disconnect-button-${cameraBlockId}" style="display: none;" onclick="disconnectWebsocket('${cameraBlockId}')">&times;</button>
     <div class="url-block url-block-${cameraCount}">
         <input type="text" id="camera-url-${cameraBlockId}" placeholder="Введите номер конфигурации" size="28">
         <button class="camera-connect-button" id="connect-button-${cameraBlockId}" onclick="connectCamera('${cameraBlockId}')">Подключить</button>
-        <button class="camera-disconnect-button" id="disconnect-button-${cameraBlockId}" style="display: none;" onclick="disconnectWebsocket('${cameraBlockId}')">Отключить</button>
     </div>
     <div class="video-and-detection">
         <div class="video-container video-container-${cameraBlockId}" style="width: ${cameraWidth}px; height: ${cameraHeight}px;">
