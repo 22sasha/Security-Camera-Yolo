@@ -30,7 +30,6 @@ async function connectToCamera(cameraBlockId, cameraId = null) {
     }
     const data = await response.json();
     document.getElementById(`camera-name-${cameraBlockId}`).innerText = name;
-    // document.getElementById(`camera-name-${cameraBlockId}`).style.display = 'flex';
     return data.camera_id;
 }
 
