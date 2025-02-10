@@ -11,7 +11,10 @@ async function connectCamera(cameraBlockId, cameraId = null) {
 }
 
 async function connectToCamera(cameraBlockId, cameraId = null) {
-    const url = await getCameraURL(cameraBlockId);
+    const config = await getCameraConfig(cameraBlockId);
+    const url = config.url;
+    const name = config.name;
+    console.log(name);
     const response = await fetch('/connect_camera', {
         method: 'POST',
         headers: {
@@ -26,10 +29,11 @@ async function connectToCamera(cameraBlockId, cameraId = null) {
         return null;
     }
     const data = await response.json();
+    document.getElementById(`camera-name-${cameraBlockId}`).innerText = name;
     return data.camera_id;
 }
 
-async function getCameraURL(cameraBlockId) {
+async function getCameraConfig(cameraBlockId) {
     const cameraConfigID = document.getElementById(`camera-url-${cameraBlockId}`).value;
     const response = await fetch(`/camera_config/${cameraConfigID}`, {
         method: 'GET',
@@ -42,8 +46,7 @@ async function getCameraURL(cameraBlockId) {
         return;
     }
     const config = await response.json();
-    const cameraUrl = config.camera_config.url;
-    return cameraUrl;
+    return config.camera_config;
 }
 
 async function disconnectCamera(cameraBlockId) {
@@ -60,6 +63,7 @@ async function disconnectCamera(cameraBlockId) {
         document.querySelector(`.detect0-${cameraBlockId} img`).src = "/static/images/empty.png";
         document.querySelector(`.detect1-${cameraBlockId} img`).src = "/static/images/empty.png";
         document.querySelector(`.video-container-${cameraBlockId}`).style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+        document.getElementById(`camera-name-${cameraBlockId}`).style.display = 'none';
 
         const response = await fetch('/disconnect_camera', {
             method: 'POST',
